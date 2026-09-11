@@ -9,6 +9,8 @@ venv/
 **/.env
 .env.*
 **/.env.*
+!.env.example
+!**/.env.example
 
 # Logs & Download Cache
 *.log

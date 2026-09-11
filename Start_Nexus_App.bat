@@ -1,5 +1,5 @@
 @echo off
 echo Starting Nexus Launcher...
-cd "F:\Camera\nexus window app"
+cd /d "%~dp0nexus window app"
 start npm start
 exit

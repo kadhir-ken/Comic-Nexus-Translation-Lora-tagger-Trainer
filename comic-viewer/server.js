@@ -14,8 +14,9 @@ dns.setDefaultResultOrder('ipv4first');
 const app = express();
 
 
-const PORT = 3001;
-const COMIC_BASE_PATH = 'F:\\Camera\\comic-website';
+const PORT = process.env.PORT || 3001;
+const ROOT_DIR = process.env.ROOT_DIR || path.resolve(__dirname, '..');
+const COMIC_BASE_PATH = process.env.COMIC_BASE_PATH || path.join(ROOT_DIR, 'comic-website');
 const HF_SPACE_BASE = 'https://deepghs-wd14-tagging-online.hf.space';
 const HF_TOKEN = process.env.HF_TOKEN || '';
 let wd14EndpointCache = null;
@@ -28,9 +29,9 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.static(__dirname));
 app.use('/images', express.static(COMIC_BASE_PATH));
 
-// Keep the trainer in F:\\Camera while serving it from the viewer app.
+// Serve trainer.html from the root folder
 app.get('/trainer.html', (req, res) => {
-    res.sendFile('F:\\Camera\\trainer.html');
+    res.sendFile(path.join(ROOT_DIR, 'trainer.html'));
 });
 
 async function fetchWd14Info() {
@@ -489,7 +490,7 @@ app.post('/api/create-dataset-folder/:name', express.json(), (req, res) => {
             return res.status(400).json({ error: 'Invalid folder name' });
         }
 
-        const targetDir = path.join('F:\\Camera', folderName);
+        const targetDir = path.join(ROOT_DIR, folderName);
         if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
         }
@@ -519,10 +520,10 @@ app.post('/api/create-dataset-folder/:name', express.json(), (req, res) => {
     }
 });
 
-// Browse F:\Camera root folders
+// Browse root workspace folders
 app.get('/api/browse-camera', (req, res) => {
     try {
-        const cameraRoot = 'F:\\Camera';
+        const cameraRoot = ROOT_DIR;
         const entries = fs.readdirSync(cameraRoot);
         const result = entries.map(name => {
             const fullPath = path.join(cameraRoot, name);
@@ -543,12 +544,12 @@ app.get('/api/browse-camera', (req, res) => {
     }
 });
 
-// Browse a specific subfolder inside F:\Camera
+// Browse a specific subfolder inside root workspace
 app.get('/api/browse-camera/:folder', (req, res) => {
     try {
         const folder = req.params.folder;
         if (folder.includes('..')) return res.status(400).json({ error: 'Invalid' });
-        const folderPath = path.join('F:\\Camera', folder);
+        const folderPath = path.join(ROOT_DIR, folder);
         const entries = fs.readdirSync(folderPath);
         const result = entries.map(name => {
             const fullPath = path.join(folderPath, name);
@@ -571,13 +572,13 @@ app.get('/api/browse-camera/:folder', (req, res) => {
     }
 });
 
-// Serve a preview image from F:\Camera/<folder>/<file>
+// Serve a preview image from <folder>/<file>
 app.get('/api/camera-preview/:folder/:file', (req, res) => {
     try {
         const folder = req.params.folder;
         const file = req.params.file;
         if (folder.includes('..') || file.includes('..')) return res.status(400).send('Invalid');
-        const filePath = path.join('F:\\Camera', folder, file);
+        const filePath = path.join(ROOT_DIR, folder, file);
         if (!fs.existsSync(filePath)) return res.status(404).send('Not found');
         res.sendFile(filePath);
     } catch (err) {
@@ -587,7 +588,7 @@ app.get('/api/camera-preview/:folder/:file', (req, res) => {
 
 // ── Trainer file operations ────────────────────────────────────────────────
 
-const CAMERA_ROOT = 'F:\\Camera';
+const CAMERA_ROOT = ROOT_DIR;
 
 function safeTrainerPath(folder, file) {
     if (!folder || folder.includes('..')) return null;
@@ -1493,7 +1494,7 @@ app.post('/api/trainer/qwen-caption', async (req, res) => {
 
         // If folder and image are provided, read and process from disk
         if (!imageDataUrl && image) {
-            let imgPath = path.resolve('F:\\Camera', folder || '', image);
+            let imgPath = path.resolve(ROOT_DIR, folder || '', image);
             if (!fs.existsSync(imgPath) && folder) {
                 imgPath = path.resolve(COMIC_BASE_PATH, folder, image);
             }

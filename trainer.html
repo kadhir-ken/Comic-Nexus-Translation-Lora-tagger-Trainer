@@ -941,7 +941,7 @@
             <!-- Folder browser shown BEFORE a folder is loaded -->
             <div id="mainBrowserPanel" class="panel stack" style="margin-bottom:16px;">
                 <div class="folder-browser-panel">
-                    <div class="folder-browser-path" id="browserPath">F:\Camera</div>
+                    <div class="folder-browser-path" id="browserPath">Workspace Root</div>
                     <div class="folder-browser-controls">
                         <button id="mainBackBtn" class="secondary" disabled>← Back</button>
                         <button id="mainRefreshBtn" class="secondary">↺ Refresh</button>
@@ -1595,7 +1595,7 @@
             const pathEl = document.getElementById('browserPath');
             listEl.innerHTML = '<div class="note">Loading…</div>';
             currentBrowserPath = subPath;
-            pathEl.textContent = subPath ? `F:\\Camera\\${subPath}` : 'F:\\Camera';
+            pathEl.textContent = subPath ? subPath : 'Workspace Root';
             document.getElementById('mainBackBtn').disabled = browserStack.length === 0;
 
             try {

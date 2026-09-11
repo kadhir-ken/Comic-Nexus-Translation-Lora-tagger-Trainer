@@ -28,7 +28,7 @@ function startNodeServer() {
         return;
     }
 
-    const serverPath = path.join('F:', 'Camera', 'comic-viewer', 'server.js');
+    const serverPath = path.resolve(__dirname, '..', 'comic-viewer', 'server.js');
     launcherWindow.webContents.send('server-log', `Starting node ${serverPath}...`);
     
     serverProcess = spawn('node', [serverPath], {

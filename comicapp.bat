@@ -6,6 +6,6 @@ echo LM Studio AI will boot on-demand when translating.
 echo ========================================
 
 :: Run Node directly so logs are shown. It will open Chrome dynamically.
-node "F:\Camera\comic-viewer\server.js"
+node "%~dp0comic-viewer\server.js"
 
 pause
