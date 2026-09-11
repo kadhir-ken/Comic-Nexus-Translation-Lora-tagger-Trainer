@@ -1,0 +1,33 @@
+# Dependencies & Environments
+node_modules/
+**/node_modules/
+venv/
+**/venv/
+
+# Secrets & Environment Files
+.env
+**/.env
+.env.*
+**/.env.*
+
+# Logs & Download Cache
+*.log
+**/*.log
+*.parts
+**/*.parts
+
+# Operating System Files
+Thumbs.db
+.DS_Store
+
+# Build Artifacts (Nexus Comic-win32-x64 binary exceeds GitHub 100MB limit)
+build/
+**/build/
+
+# Datasets
+dataset*/
+dataset - */
+dataset -*
+
+# Folders inside comic-website
+comic-website/*/

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Launcher</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: #334155;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            background-color: var(--surface);
+            color: var(--text-muted);
+            margin-top: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .status-badge.running {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            background-color: #2a384e;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .logs-container {
+            background-color: #000;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            color: #a3be8c;
+            line-height: 1.5;
+        }
+
+        .log-line {
+            margin: 2px 0;
+            word-wrap: break-word;
+        }
+
+        .log-error {
+            color: #bf616a;
+        }
+
+        .log-info {
+            color: #88c0d0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Nexus Comic</h1>
+        <div class="subtitle">Server Control Panel</div>
+        <div id="statusBadge" class="status-badge">Server Stopped</div>
+    </div>
+
+    <div class="controls">
+        <button id="btnStart" class="btn-primary">
+            🚀 Start Nexus Comic
+        </button>
+        <button id="btnRestart">
+            🔄 Restart Server
+        </button>
+    </div>
+
+    <div id="logs" class="logs-container">
+        <div class="log-info">Ready to launch.</div>
+    </div>
+
+    <script>
+        const btnStart = document.getElementById('btnStart');
+        const btnRestart = document.getElementById('btnRestart');
+        const logsContainer = document.getElementById('logs');
+        const statusBadge = document.getElementById('statusBadge');
+
+        let isRunning = false;
+
+        function addLog(msg, type = 'normal') {
+            const el = document.createElement('div');
+            el.className = 'log-line';
+            if (type === 'error') el.classList.add('log-error');
+            if (type === 'info') el.classList.add('log-info');
+            el.textContent = msg;
+            logsContainer.appendChild(el);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        window.api.onLog((msg) => addLog(msg));
+        window.api.onError((msg) => addLog(msg, 'error'));
+        
+        window.api.onServerStatus((status) => {
+            isRunning = status === 'running';
+            if (isRunning) {
+                statusBadge.textContent = 'Server Running';
+                statusBadge.classList.add('running');
+                btnStart.innerHTML = '🌐 Open App Window';
+                btnStart.classList.remove('btn-primary');
+            } else {
+                statusBadge.textContent = 'Server Stopped';
+                statusBadge.classList.remove('running');
+                btnStart.innerHTML = '🚀 Start Nexus Comic';
+                btnStart.classList.add('btn-primary');
+            }
+        });
+
+        btnStart.addEventListener('click', () => {
+            if (isRunning) {
+                window.api.openApp();
+            } else {
+                addLog('Starting server...', 'info');
+                window.api.startServer();
+            }
+        });
+
+        btnRestart.addEventListener('click', () => {
+            addLog('Restarting server...', 'info');
+            window.api.restartServer();
+        });
+    </script>
+</body>
+</html>

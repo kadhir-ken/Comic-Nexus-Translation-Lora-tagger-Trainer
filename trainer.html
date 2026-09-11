@@ -1,0 +1,2586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainer Model</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #090909;
+            --panel: #141414;
+            --panel-2: #1d1d1d;
+            --panel-3: #232323;
+            --border: #2f2f2f;
+            --accent: #e8c547;
+            --accent2: #ff4d6d;
+            --ok: #35d07f;
+            --warn: #ffb347;
+            --text: #ebebeb;
+            --muted: #909090;
+            --shadow: 0 22px 60px rgba(0, 0, 0, 0.55);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(255, 77, 109, 0.12), transparent 28%),
+                radial-gradient(circle at top right, rgba(232, 197, 71, 0.12), transparent 24%),
+                linear-gradient(180deg, #090909 0%, #0e0e10 100%);
+        }
+
+        .shell {
+            width: min(1600px, calc(100vw - 32px));
+            margin: 16px auto;
+            display: grid;
+            grid-template-columns: 330px minmax(0, 1fr);
+            gap: 16px;
+            min-height: calc(100vh - 32px);
+        }
+
+        .sidebar,
+        .main {
+            background: rgba(20, 20, 20, 0.92);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(14px);
+        }
+
+        .sidebar {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .brand h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            color: var(--accent);
+            letter-spacing: 2px;
+            font-size: 2.2rem;
+            line-height: 1;
+        }
+
+        .brand p {
+            color: var(--muted);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            margin-top: 6px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+        }
+
+        .stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button,
+        .btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 11px 14px;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+        }
+
+        button:hover,
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+            transform: none;
+        }
+
+        .primary {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .secondary {
+            background: var(--panel-3);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .danger {
+            background: rgba(255, 77, 109, 0.16);
+            color: #ffb9c4;
+            border: 1px solid rgba(255, 77, 109, 0.35);
+        }
+
+        .ghost {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .chip-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--text);
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 10px;
+        }
+
+        .chip.ok {
+            color: #b7f5d2;
+            border-color: rgba(53, 208, 127, 0.32);
+            background: rgba(53, 208, 127, 0.08);
+        }
+
+        .chip.warn {
+            color: #ffe2b7;
+            border-color: rgba(255, 179, 71, 0.32);
+            background: rgba(255, 179, 71, 0.08);
+        }
+
+        .field,
+        textarea,
+        input {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--panel-2);
+            color: var(--text);
+            padding: 11px 12px;
+            font: inherit;
+            outline: none;
+        }
+
+        .field:focus,
+        textarea:focus,
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.45;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 0.86rem;
+            line-height: 1.45;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .stat {
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .stat .label {
+            color: var(--muted);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+        }
+
+        .stat .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 6px;
+        }
+
+        .log {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            min-height: 160px;
+            max-height: 240px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.82rem;
+            color: #b8ffbf;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            white-space: pre-wrap;
+        }
+
+        .main {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .header h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+        }
+
+        .subhead {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 340px;
+            gap: 14px;
+            min-height: 0;
+            flex: 1;
+        }
+
+        .gallery,
+        .right-rail {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            min-height: 0;
+        }
+
+        .gallery {
+            padding: 14px;
+            overflow: auto;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .thumb {
+            position: relative;
+            background: #0a0a0a;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .thumb img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .badge-row {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 4px 7px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            backdrop-filter: blur(4px);
+        }
+
+        .card-body {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filename {
+            font-size: 0.86rem;
+            font-weight: 700;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .mini {
+            padding: 7px 9px;
+            font-size: 0.76rem;
+            border-radius: 9px;
+        }
+
+        .mini.primary {
+            background: rgba(232, 197, 71, 0.16);
+            color: var(--accent);
+            border: 1px solid rgba(232, 197, 71, 0.22);
+        }
+
+        .mini.secondary {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .mini.ok {
+            background: rgba(53, 208, 127, 0.12);
+            color: #b7f5d2;
+            border: 1px solid rgba(53, 208, 127, 0.22);
+        }
+
+        .mini.warn {
+            background: rgba(255, 179, 71, 0.12);
+            color: #ffe2b7;
+            border: 1px solid rgba(255, 179, 71, 0.22);
+        }
+
+        .card-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .card-actions button {
+            padding: 8px 6px;
+            font-size: 0.76rem;
+        }
+
+        .card-actions button.danger {
+            background: rgba(255, 77, 109, 0.12);
+            color: #ff4d6d;
+            border: 1px solid rgba(255, 77, 109, 0.25);
+        }
+
+        .card-actions button.danger:hover {
+            background: rgba(255, 77, 109, 0.22);
+        }
+
+        .card-checkbox-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+
+        .card-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .right-rail {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow: auto;
+        }
+
+        .section {
+            background: #111;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+        }
+
+        .section small {
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 9px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 0.77rem;
+        }
+
+        .progress {
+            height: 12px;
+            border-radius: 999px;
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .progress>div {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), #fff1a8);
+            transition: width 0.2s ease;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 1000;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-card {
+            width: min(1200px, 100%);
+            max-height: calc(100vh - 32px);
+            background: #111;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-head {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .modal-head h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            color: var(--accent);
+            letter-spacing: 1.5px;
+            font-size: 1.7rem;
+        }
+
+        .modal-body {
+            padding: 14px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 320px;
+            gap: 14px;
+            min-height: 0;
+            overflow: auto;
+        }
+
+        .crop-stage {
+            position: relative;
+            background: #050505;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            overflow: hidden;
+        }
+
+        .crop-stage img {
+            max-width: 100%;
+            max-height: 74vh;
+            display: block;
+            user-select: none;
+            -webkit-user-drag: none;
+            pointer-events: none;
+        }
+
+        .selection {
+            position: absolute;
+            border: 2px solid var(--accent);
+            background: rgba(232, 197, 71, 0.08);
+            display: none;
+            cursor: move;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+        }
+
+        .selection .handle {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border: 2px solid #000;
+            border-radius: 3px;
+        }
+
+        .selection .handle.nw {
+            top: -7px;
+            left: -7px;
+            cursor: nw-resize;
+        }
+
+        .selection .handle.n {
+            top: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: n-resize;
+        }
+
+        .selection .handle.ne {
+            top: -7px;
+            right: -7px;
+            cursor: ne-resize;
+        }
+
+        .selection .handle.e {
+            top: 50%;
+            right: -7px;
+            transform: translateY(-50%);
+            cursor: e-resize;
+        }
+
+        .selection .handle.se {
+            bottom: -7px;
+            right: -7px;
+            cursor: se-resize;
+        }
+
+        .selection .handle.s {
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: s-resize;
+        }
+
+        .selection .handle.sw {
+            bottom: -7px;
+            left: -7px;
+            cursor: sw-resize;
+        }
+
+        .selection .handle.w {
+            top: 50%;
+            left: -7px;
+            transform: translateY(-50%);
+            cursor: w-resize;
+        }
+
+        .sidebox {
+            background: #0c0c0c;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .preview {
+            width: 100%;
+            background: #050505;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview img {
+            max-width: 100%;
+            max-height: 40vh;
+            object-fit: contain;
+            display: block;
+            background: #050505;
+        }
+
+        .tagging-panel {
+            display: grid;
+            gap: 10px;
+        }
+
+        .tagging-queue {
+            max-height: 180px;
+            overflow: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            background: #0a0a0a;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        .queue-item {
+            padding: 7px 8px;
+            border-radius: 8px;
+        }
+
+        .queue-item.active {
+            background: rgba(232, 197, 71, 0.12);
+            color: var(--accent);
+        }
+
+        .queue-item.done {
+            color: #b7f5d2;
+        }
+
+        @media (max-width: 1180px) {
+            .shell {
+                grid-template-columns: 1fr;
+            }
+
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .shell {
+                width: calc(100vw - 16px);
+                margin: 8px auto;
+            }
+
+            .sidebar,
+            .main {
+                padding: 14px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Folder Browser ── */
+        .folder-browser-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .folder-browser-path {
+            font-size: 0.72rem;
+            color: var(--accent);
+            font-family: monospace;
+            word-break: break-all;
+            padding: 4px 6px;
+            background: rgba(232,197,71,0.07);
+            border-radius: 4px;
+            border: 1px solid rgba(232,197,71,0.2);
+        }
+        .folder-browser-controls {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .folder-browser-list {
+            max-height: 420px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--panel-2);
+        }
+        .fbl-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            transition: background 0.15s;
+            user-select: none;
+        }
+        .fbl-item:last-child { border-bottom: none; }
+        .fbl-item:hover { background: var(--panel-3); }
+        .fbl-item .fbl-icon { font-size: 1rem; flex-shrink: 0; }
+        .fbl-item .fbl-name {
+            flex: 1;
+            font-size: 0.82rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text);
+        }
+        .fbl-item .fbl-count {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .fbl-open-btn {
+            padding: 2px 10px;
+            font-size: 0.72rem;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--accent);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .fbl-open-btn:hover {
+            background: var(--accent);
+            color: #000;
+        }
+        /* hover tooltip showing folder contents */
+        .fbl-tooltip {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            width: 220px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            pointer-events: none;
+        }
+        .fbl-tooltip.visible { display: block; }
+        .fbl-tooltip img {
+            width: 100%;
+            border-radius: 4px;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .fbl-tooltip-name {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <h1>Trainer Model</h1>
+                <p>Folder crop, rename, tag, and trigger flow</p>
+            </div>
+
+            <div class="panel stack">
+                <div class="row">
+                    <button id="backBtn" class="secondary" disabled>← Back to Browser</button>
+                    <button id="refreshBtn" class="secondary">↺ Refresh</button>
+                </div>
+                <div class="row">
+                    <button id="renameBtn" class="secondary" disabled>Rename All Images</button>
+                    <button id="txtBtn" class="secondary" disabled>Create Text Documents</button>
+                </div>
+                <div class="row">
+                    <button id="upscaleBtn" class="secondary" disabled>Upscale All (16x ➔ 1280)</button>
+                </div>
+                <div class="row" style="padding-top: 10px; border-top: 1px solid var(--border);">
+                    <div style="width: 100%; font-size: 0.8rem; color: var(--accent); margin-bottom: 5px;">BATCH ACTIONS</div>
+                    <button id="selectAllBtn" class="secondary">Toggle Select All</button>
+                    <button id="batchResizeBtn" class="secondary" disabled>Resize Selected</button>
+                    <button id="batchTagBtn" class="primary" disabled>Auto-Tag Selected (WD14)</button>
+                </div>
+                <div class="row">
+                    <button id="tagBtn" class="primary" disabled>Tag the Images</button>
+                    <button id="verifyBtn" class="ghost" disabled>Verify Set</button>
+                </div>
+            </div>
+
+            <div class="panel stack">
+                <div class="stats-grid">
+                    <div class="stat">
+                        <div class="label">Images</div>
+                        <div class="value" id="statImages">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Txt Files</div>
+                        <div class="value" id="statTxt">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Renamed</div>
+                        <div class="value" id="statRenamed">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Tagged</div>
+                        <div class="value" id="statTagged">0</div>
+                    </div>
+                </div>
+                <div class="progress" aria-label="workflow progress">
+                    <div id="workflowBar"></div>
+                </div>
+            </div>
+
+            <div class="panel stack">
+                <input id="triggerInput" class="field" type="text" placeholder="Trigger word, e.g. thewidowmaker"
+                    disabled>
+                <div class="row">
+                    <button id="triggerBtn" class="primary" disabled>Add Trigger Word</button>
+                    <button id="openTagSpaceBtn" class="secondary" disabled>Open Tagging Site</button>
+                </div>
+                <div class="note" id="triggerNote">
+                    The trigger pass appears after every image has a txt file with tags.
+                </div>
+            </div>
+
+            <div class="panel stack">
+                <div class="note">Verifier result</div>
+                <div class="chip-bar" id="verifierChips"></div>
+                <div class="log" id="log"></div>
+            </div>
+
+            <div class="footer-links">
+                <a href="comic-viewer/index.html" class="btn secondary">Back to Library</a>
+                <a href="comic-viewer/downloader.html" class="btn secondary">Web Downloader</a>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="header">
+                <div>
+                    <h2 id="folderTitle">No folder selected</h2>
+                    <div class="subhead" id="folderSubtitle">Browse and open a dataset folder below.</div>
+                </div>
+                <div class="chip-bar">
+                    <span class="chip" id="chipFolder">Folder: none</span>
+                    <span class="chip" id="chipSelected">Selected: none</span>
+                    <span class="chip" id="chipStatus">Idle</span>
+                </div>
+            </div>
+
+            <!-- Folder browser shown BEFORE a folder is loaded -->
+            <div id="mainBrowserPanel" class="panel stack" style="margin-bottom:16px;">
+                <div class="folder-browser-panel">
+                    <div class="folder-browser-path" id="browserPath">F:\Camera</div>
+                    <div class="folder-browser-controls">
+                        <button id="mainBackBtn" class="secondary" disabled>← Back</button>
+                        <button id="mainRefreshBtn" class="secondary">↺ Refresh</button>
+                    </div>
+                    <div class="folder-browser-list" id="folderBrowserList">
+                        <div class="note">Loading folders…</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="workspace" id="workspacePanel" style="display:none;">
+                <section class="gallery">
+                    <div style="margin-bottom: 12px;">
+                        <button id="workspaceBackBtn" class="secondary">← Back to Folders</button>
+                    </div>
+                    <div class="gallery-grid" id="galleryGrid">
+                        <div class="note">No folder loaded yet.</div>
+                    </div>
+                </section>
+
+                <section class="right-rail">
+                    <div class="section" id="taggingSection">
+                        <h3>Image Inspector</h3>
+                        <small id="taggingHelp">Select an image in the grid to view its txt document here.</small>
+                        <div class="tagging-panel">
+                            <div class="chip-bar" style="margin-bottom: 8px;">
+                                <span class="chip" id="queueCurrent">No image</span>
+                            </div>
+                            <div class="preview">
+                                <img id="tagPreview" alt="Current image preview">
+                            </div>
+                            <textarea id="tagTextarea"
+                                placeholder="The txt file is empty or missing. Add tags here and save."></textarea>
+                            <div class="row">
+                                <button id="saveTagBtn" class="primary" style="flex:1;">Save Tags</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal" id="cropModal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <h3 id="cropTitle">Crop Image</h3>
+                    <button class="secondary" id="eraseModeBtn" onclick="toggleEraseMode()" title="Toggle eraser brush to paint and erase secondary characters or unwanted elements">🧹 Erase</button>
+                </div>
+                <div class="row">
+                    <button class="secondary" id="fullCropBtn">Use Full Image</button>
+                    <button class="primary" id="saveCropBtn">Save Crop</button>
+                    <button class="ghost" id="closeCropBtn">Close</button>
+                </div>
+            </div>
+            <!-- Erase Toolbar -->
+            <div id="eraseToolbar" style="display: none; background: #181818; border-bottom: 1px solid var(--border); padding: 8px 18px; align-items: center; gap: 14px; flex-wrap: wrap;">
+                <span style="font-size: 0.82rem; font-weight: 600; color: var(--accent); display: flex; align-items: center; gap: 5px;">
+                    🧹 Eraser:
+                </span>
+                
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 0.78rem; color: var(--muted);">Color:</span>
+                    <button type="button" class="erase-color-btn active" data-color="#ffffff" onclick="setEraseColor('#ffffff', this)" style="background:#ffffff; width:22px; height:22px; border-radius:50%; border:2px solid var(--accent); cursor:pointer;" title="Erase with White (Manga/Light bg)"></button>
+                    <button type="button" class="erase-color-btn" data-color="#000000" onclick="setEraseColor('#000000', this)" style="background:#000000; width:22px; height:22px; border-radius:50%; border:2px solid #555; cursor:pointer;" title="Erase with Black (Dark bg)"></button>
+                    <input type="color" id="eraseCustomColor" value="#ffffff" oninput="setEraseColor(this.value, null)" style="width:26px; height:24px; border:none; background:transparent; cursor:pointer;" title="Custom erase color">
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.78rem; color: var(--muted);">Brush:</span>
+                    <input type="range" id="eraseBrushSize" min="6" max="150" value="35" oninput="setEraseBrushSize(this.value)" style="width: 100px; accent-color: var(--accent); cursor: pointer;">
+                    <span id="eraseBrushSizeLabel" style="font-size: 0.78rem; font-family: monospace; color: var(--text); min-width: 32px;">35px</span>
+                </div>
+
+                <button type="button" class="ghost" id="eraseUndoBtn" onclick="undoErase()" style="padding: 4px 10px; font-size: 0.78rem;" title="Undo last erase stroke">↩ Undo</button>
+                <button type="button" class="ghost" id="eraseClearBtn" onclick="clearAllErases()" style="padding: 4px 10px; font-size: 0.78rem; color: #f87171;" title="Clear all erase strokes">🗑️ Clear Erase</button>
+
+                <span style="font-size: 0.75rem; color: #888; margin-left: auto;">
+                    Paint over unwanted characters or distractions before saving crop
+                </span>
+            </div>
+            <div class="modal-body">
+                <div class="crop-stage" id="cropStage">
+                    <img id="cropImage" alt="Crop preview">
+                    <canvas id="eraseCanvas" style="position: absolute; display: none; cursor: crosshair;"></canvas>
+                    <div class="selection" id="selectionBox">
+                        <div class="handle nw" data-handle="nw"></div>
+                        <div class="handle n" data-handle="n"></div>
+                        <div class="handle ne" data-handle="ne"></div>
+                        <div class="handle e" data-handle="e"></div>
+                        <div class="handle se" data-handle="se"></div>
+                        <div class="handle s" data-handle="s"></div>
+                        <div class="handle sw" data-handle="sw"></div>
+                        <div class="handle w" data-handle="w"></div>
+                    </div>
+                </div>
+                <div class="sidebox">
+                    <div class="preview">
+                        <img id="cropThumb" alt="Selected file preview">
+                    </div>
+                    <div class="note" id="cropHint">
+                        Drag the <strong>handles</strong> on the edges or corners to adjust the crop area. Drag inside
+                        the box to move it.
+                    </div>
+                    <div class="chip-bar">
+                        <span class="chip" id="cropDims">0 x 0</span>
+                        <span class="chip" id="cropName">No file</span>
+                    </div>
+                    <div class="tag-list" id="cropInfoList"></div>
+                    <div class="note" style="margin-top:4px;">Crop is saved as a <strong>new file</strong>. Original
+                        stays untouched.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+        const TAGGING_URL = 'https://huggingface.co/spaces/deepghs/wd14_tagging_online';
+        const WD14_CLIENT_MODULE = 'https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js';
+
+        const els = {
+            pickFolderBtn: null,
+            backBtn: document.getElementById('backBtn'),
+            refreshBtn: document.getElementById('refreshBtn'),
+            renameBtn: document.getElementById('renameBtn'),
+            txtBtn: document.getElementById('txtBtn'),
+            upscaleBtn: document.getElementById('upscaleBtn'),
+            batchResizeBtn: document.getElementById('batchResizeBtn'),
+            batchTagBtn: document.getElementById('batchTagBtn'),
+            selectAllBtn: document.getElementById('selectAllBtn'),
+            tagBtn: document.getElementById('tagBtn'),
+            verifyBtn: document.getElementById('verifyBtn'),
+            triggerInput: document.getElementById('triggerInput'),
+            triggerBtn: document.getElementById('triggerBtn'),
+            openTagSpaceBtn: document.getElementById('openTagSpaceBtn'),
+            galleryGrid: document.getElementById('galleryGrid'),
+            log: document.getElementById('log'),
+            folderTitle: document.getElementById('folderTitle'),
+            folderSubtitle: document.getElementById('folderSubtitle'),
+            chipFolder: document.getElementById('chipFolder'),
+            chipSelected: document.getElementById('chipSelected'),
+            chipStatus: document.getElementById('chipStatus'),
+            statImages: document.getElementById('statImages'),
+            statTxt: document.getElementById('statTxt'),
+            statRenamed: document.getElementById('statRenamed'),
+            statTagged: document.getElementById('statTagged'),
+            verifierChips: document.getElementById('verifierChips'),
+            workflowBar: document.getElementById('workflowBar'),
+            triggerNote: document.getElementById('triggerNote'),
+            taggingSection: document.getElementById('taggingSection'),
+            queueCurrent: document.getElementById('queueCurrent'),
+            tagPreview: document.getElementById('tagPreview'),
+            tagTextarea: document.getElementById('tagTextarea'),
+            saveTagBtn: document.getElementById('saveTagBtn'),
+            cropModal: document.getElementById('cropModal'),
+            cropStage: document.getElementById('cropStage'),
+            cropImage: document.getElementById('cropImage'),
+            selectionBox: document.getElementById('selectionBox'),
+            cropTitle: document.getElementById('cropTitle'),
+            saveCropBtn: document.getElementById('saveCropBtn'),
+            closeCropBtn: document.getElementById('closeCropBtn'),
+            fullCropBtn: document.getElementById('fullCropBtn'),
+            cropDims: document.getElementById('cropDims'),
+            cropName: document.getElementById('cropName'),
+            cropThumb: document.getElementById('cropThumb'),
+            cropInfoList: document.getElementById('cropInfoList'),
+            cropHint: document.getElementById('cropHint')
+        };
+
+        const state = {
+            rootHandle: null,
+            dirHandle: null,
+            dirName: '',
+            folderTrail: [],
+            history: [],
+            folders: [],
+            items: [],
+            selectedName: '',
+            cropItem: null,
+            cropBlobUrl: '',
+            cropNatural: { width: 0, height: 0 },
+            cropRect: null,
+            cropDrag: null
+        };
+
+        let gradioClientPromise = null;
+
+        function log(message, kind = 'info') {
+            const line = document.createElement('div');
+            line.textContent = message;
+            if (kind === 'error') {
+                line.style.color = '#ff8da0';
+            } else if (kind === 'ok') {
+                line.style.color = '#b7f5d2';
+            } else if (kind === 'warn') {
+                line.style.color = '#ffe2b7';
+            }
+            els.log.appendChild(line);
+            els.log.scrollTop = els.log.scrollHeight;
+        }
+
+        function extractWd14Tags(payload) {
+            if (!payload) return '';
+            if (typeof payload === 'string') return payload.trim();
+            if (Array.isArray(payload)) {
+                for (const entry of payload) {
+                    const text = extractWd14Tags(entry);
+                    if (text) return text;
+                }
+                return '';
+            }
+            if (typeof payload === 'object') {
+                if (typeof payload.text === 'string') return payload.text.trim();
+                if (typeof payload.tags === 'string') return payload.tags.trim();
+                if (typeof payload.output === 'string') return payload.output.trim();
+                if (Array.isArray(payload.data)) return extractWd14Tags(payload.data);
+            }
+            return '';
+        }
+
+        async function getGradioClient() {
+            if (!gradioClientPromise) {
+                gradioClientPromise = import(WD14_CLIENT_MODULE);
+            }
+            return gradioClientPromise;
+        }
+
+        async function tagViaRemotePredict(file) {
+            const { client, handle_file } = await getGradioClient();
+            const app = await client(TAGGING_URL);
+            const result = await app.predict('/predict', [
+                handle_file(file),
+                'wd14-vit',
+                0.35,
+                false,
+                true,
+                false,
+                true
+            ]);
+            const tags = extractWd14Tags(result?.data?.[1] ?? result);
+            if (!tags) {
+                throw new Error('Remote API did not return tags.');
+            }
+
+            return tags;
+        }
+
+        async function tagViaLocalProxy(file, itemName) {
+            const response = await fetch('http://localhost:3001/api/wd14/tag', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': file.type || 'application/octet-stream',
+                    'x-filename': itemName
+                },
+                body: file
+            });
+
+            if (!response.ok) {
+                let detail = '';
+                try {
+                    const errorData = await response.json();
+                    detail = errorData.error ? `: ${errorData.error}` : '';
+                } catch {
+                    // Keep the HTTP status when the server did not return JSON.
+                }
+                throw new Error(`Server returned ${response.status}${detail}`);
+            }
+
+            const data = await response.json();
+            if (!data.ok) {
+                throw new Error(data.error || 'Unknown API error');
+            }
+
+            const tags = String(data.tags || '').trim();
+            if (!tags) {
+                throw new Error('Server returned empty tags.');
+            }
+
+            return tags;
+        }
+
+        async function getWd14Tags(file, itemName) {
+            // Keep Hugging Face access on the local proxy. Calling the Space
+            // directly from a file:// page is blocked by CORS and its old
+            // client endpoint is no longer available.
+            const tags = await tagViaLocalProxy(file, itemName);
+            return { tags, source: 'proxy' };
+        }
+
+        function setStatus(text) {
+            els.chipStatus.textContent = text;
+        }
+
+        function naturalSort(a, b) {
+            return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+        }
+
+        function isImageFile(name) {
+            return new RegExp(`\\.(${IMAGE_EXTENSIONS.join('|')})$`, 'i').test(name);
+        }
+
+        function getExt(name) {
+            const parts = name.split('.');
+            return parts.length > 1 ? parts.pop().toLowerCase() : '';
+        }
+
+        function getBase(name) {
+            return name.replace(/\.[^.]+$/, '');
+        }
+
+        function padNumber(n, width) {
+            return String(n).padStart(width, '0');
+        }
+
+        // Returns a direct server URL for an image — no blob URLs needed
+        function imgUrlFor(item) {
+            return `${SERVER}/api/camera-preview/${encodeURIComponent(state.dirName)}/${encodeURIComponent(item.name)}`;
+        }
+
+        // Legacy alias used in crop/tagging code
+        function blobUrlFor(item) {
+            return imgUrlFor(item);
+        }
+
+        function currentFolderLabel() {
+            return state.dirName || 'Selected folder';
+        }
+
+        // Load folder images+txt from server
+        async function readDirectory() {
+            if (!state.dirName) return;
+            try {
+                const res = await fetch(`${SERVER}/api/trainer/${encodeURIComponent(state.dirName)}/images`);
+                const images = await res.json();
+                if (!res.ok) { log(`Error loading folder: ${images.error}`, 'error'); return; }
+                state.items = images.map(img => ({
+                    name: img.name,
+                    txtName: img.txtName,
+                    hasTxt: img.hasTxt,
+                    tagText: img.tagText,
+                    renamed: img.renamed,
+                    selected: false,
+                    width: img.width,
+                    height: img.height,
+                    sizeBytes: img.sizeBytes
+                }));
+                state.folders = [];
+                // Preserve selection
+                if (!state.selectedName || !state.items.find(i => i.name === state.selectedName)) {
+                    state.selectedName = state.items[0]?.name || '';
+                }
+                renderAll();
+            } catch (err) {
+                log(`readDirectory failed: ${err.message}`, 'error');
+            }
+        }
+
+        async function syncTextStatus() {
+            // Server already returns latest txt state — just re-read directory
+            await readDirectory();
+        }
+
+        function updateStats() {
+            const imageCount = state.items.length;
+            const txtCount = state.items.filter(item => item.hasTxt).length;
+            const renamedCount = state.items.filter(item => /^image\d+\.[^.]+$/i.test(item.name)).length;
+            const taggedCount = state.items.filter(item => item.tagText.trim().length > 0).length;
+            const missingTxt = state.items.filter(item => !item.hasTxt).length;
+
+            els.statImages.textContent = imageCount;
+            els.statTxt.textContent = txtCount;
+            els.statRenamed.textContent = renamedCount;
+            els.statTagged.textContent = taggedCount;
+
+            const allTagged = imageCount > 0 && taggedCount === imageCount;
+            const allTxt = imageCount > 0 && txtCount === imageCount;
+            const allRenamed = imageCount > 0 && renamedCount === imageCount;
+
+            const progress = imageCount === 0 ? 0 : Math.round(((allRenamed ? 1 : 0) + (allTxt ? 1 : 0) + (allTagged ? 1 : 0)) / 3 * 100);
+            els.workflowBar.style.width = progress + '%';
+
+            els.tagBtn.disabled = imageCount === 0 || txtCount !== imageCount;
+            els.renameBtn.disabled = imageCount === 0;
+            els.txtBtn.disabled = imageCount === 0;
+            els.upscaleBtn.disabled = imageCount === 0;
+            els.verifyBtn.disabled = imageCount === 0;
+            els.triggerInput.disabled = !allTagged;
+            els.triggerBtn.disabled = !allTagged;
+            els.openTagSpaceBtn.disabled = imageCount === 0;
+            els.taggingSection.classList.toggle('hidden', imageCount === 0);
+
+            if (allTagged) {
+                els.triggerNote.textContent = 'Trigger word is available because every image has a non-empty txt file.';
+            } else {
+                els.triggerNote.textContent = 'The trigger pass appears after every image has a txt file with tags.';
+            }
+
+            els.folderSubtitle.textContent = imageCount
+                ? `${state.dirName || 'Selected folder'} contains ${imageCount} image file(s).`
+                : 'No images found in the selected folder.';
+            els.folderTitle.textContent = state.dirName || 'No folder selected';
+            els.chipFolder.textContent = `Folder: ${state.dirName || 'none'}`;
+            els.chipSelected.textContent = `Selected: ${state.selectedName || 'none'}`;
+        }
+
+        function updateBatchActions() {
+            const hasSelected = state.items.some(i => i.selected);
+            els.batchResizeBtn.disabled = !hasSelected;
+            els.batchTagBtn.disabled = !hasSelected;
+        }
+
+        function toggleSelectAll() {
+            const allSelected = state.items.every(i => i.selected);
+            for (const item of state.items) item.selected = !allSelected;
+            renderAll();
+        }
+
+        function chip(text, kind) {
+            const el = document.createElement('span');
+            el.className = `chip ${kind || ''}`;
+            el.textContent = text;
+            return el;
+        }
+
+        function renderAll() {
+            renderGrid();
+            renderTaggingPanel();
+            updateStats();
+            updateBatchActions();
+        }
+
+        function renderGrid() {
+            const scrollContainer = els.galleryGrid.parentElement;
+            const scrollY = scrollContainer.scrollTop;
+            
+            els.galleryGrid.innerHTML = '';
+
+            if (!state.items.length && !state.folders.length) {
+                els.galleryGrid.innerHTML = '<div class="note">No image files or subfolders found.</div>';
+                scrollContainer.scrollTop = scrollY;
+                return;
+            }
+
+            if (state.folders.length) {
+                const label = document.createElement('div');
+                label.className = 'grid-label';
+                label.textContent = state.items.length ? 'Folders in this location' : 'Choose a folder below';
+                els.galleryGrid.appendChild(label);
+
+                for (const folder of state.folders) {
+                    const card = document.createElement('article');
+                    card.className = 'card folder-card';
+
+                    const thumb = document.createElement('div');
+                    thumb.className = 'thumb folder-thumb';
+                    if (folder.blob) {
+                        const img = document.createElement('img');
+                        img.src = folderPreviewUrlFor(folder);
+                        img.alt = folder.name;
+                        thumb.appendChild(img);
+                    } else {
+                        const icon = document.createElement('div');
+                        icon.className = 'folder-icon';
+                        icon.textContent = '📁';
+                        thumb.appendChild(icon);
+                    }
+
+                    const body = document.createElement('div');
+                    body.className = 'card-body';
+
+                    const filename = document.createElement('div');
+                    filename.className = 'filename';
+                    filename.textContent = folder.name;
+
+                    const pathLine = document.createElement('div');
+                    pathLine.className = 'folder-path';
+                    pathLine.textContent = `${folder.imageCount} image file${folder.imageCount === 1 ? '' : 's'} inside`;
+
+                    const meta = document.createElement('div');
+                    meta.className = 'folder-meta';
+                    meta.appendChild(tagMini(folder.imageCount > 0 ? 'contains images' : 'empty', folder.imageCount > 0 ? 'ok' : 'warn'));
+                    if (folder.previewName) {
+                        meta.appendChild(tagMini(folder.previewName, 'secondary'));
+                    }
+
+                    const actions = document.createElement('div');
+                    actions.className = 'card-actions';
+                    actions.appendChild(actionButton('Open', async () => {
+                        await enterFolder(folder);
+                    }));
+
+                    body.appendChild(filename);
+                    body.appendChild(pathLine);
+                    body.appendChild(meta);
+                    body.appendChild(actions);
+
+                    card.appendChild(thumb);
+                    card.appendChild(body);
+                    card.addEventListener('click', async (event) => {
+                        if (event.target.closest('button')) return;
+                        await enterFolder(folder);
+                    });
+
+                    els.galleryGrid.appendChild(card);
+                }
+            }
+
+            if (!state.items.length) {
+                if (state.folders.length) return;
+                els.galleryGrid.insertAdjacentHTML('beforeend', '<div class="note">No image files found.</div>');
+                return;
+            }
+
+            if (state.folders.length) {
+                const label = document.createElement('div');
+                label.className = 'grid-label';
+                label.textContent = 'Images in the selected folder';
+                els.galleryGrid.appendChild(label);
+            }
+
+            for (const item of state.items) {
+                const card = document.createElement('article');
+                card.className = 'card';
+                card.dataset.name = item.name;
+                if (item.name === state.selectedName) {
+                    card.style.borderColor = 'rgba(232, 197, 71, 0.65)';
+                }
+
+                const thumb = document.createElement('div');
+                thumb.className = 'thumb';
+                const img = document.createElement('img');
+                img.src = blobUrlFor(item);
+                img.alt = item.name;
+                thumb.appendChild(img);
+
+                const badges = document.createElement('div');
+                badges.className = 'badge-row';
+                badges.appendChild(badge(item.name === state.selectedName ? 'selected' : 'ready'));
+                badges.appendChild(badge(item.hasTxt ? 'txt' : 'no txt'));
+                if (/^image\d+\.[^.]+$/i.test(item.name)) badges.appendChild(badge('renamed'));
+                if (item.width && item.height) badges.appendChild(badge(`${item.width}x${item.height}`));
+                if (item.sizeBytes) {
+                    const mb = (item.sizeBytes / (1024 * 1024)).toFixed(1);
+                    badges.appendChild(badge(mb > 1 ? `${mb} MB` : `${(item.sizeBytes / 1024).toFixed(0)} KB`));
+                }
+                thumb.appendChild(badges);
+
+                const checkContainer = document.createElement('div');
+                checkContainer.className = 'card-checkbox-container';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'card-checkbox';
+                checkbox.checked = !!item.selected;
+                checkbox.addEventListener('change', (e) => {
+                    item.selected = e.target.checked;
+                    updateBatchActions();
+                });
+                checkContainer.appendChild(checkbox);
+                thumb.appendChild(checkContainer);
+
+                const body = document.createElement('div');
+                body.className = 'card-body';
+
+                const filename = document.createElement('div');
+                filename.className = 'filename';
+                filename.textContent = item.name;
+
+                const meta = document.createElement('div');
+                meta.className = 'meta';
+                meta.appendChild(tagMini(item.hasTxt ? 'txt exists' : 'missing txt', item.hasTxt ? 'ok' : 'warn'));
+                meta.appendChild(tagMini(/^image\d+\.[^.]+$/i.test(item.name) ? 'sequential' : 'original name', /^image\d+\.[^.]+$/i.test(item.name) ? 'ok' : 'secondary'));
+                meta.appendChild(tagMini(item.tagText ? 'tagged' : 'untagged', item.tagText ? 'ok' : 'warn'));
+
+                const actions = document.createElement('div');
+                actions.className = 'card-actions';
+                actions.appendChild(actionButton('Crop', () => openCrop(item)));
+                
+                const removeBtn = actionButton('Remove', () => removeImageItem(item));
+                removeBtn.classList.add('danger');
+                actions.appendChild(removeBtn);
+
+                body.appendChild(filename);
+                body.appendChild(meta);
+                body.appendChild(actions);
+
+                card.appendChild(thumb);
+                card.appendChild(body);
+                card.addEventListener('click', (event) => {
+                    if (event.target.closest('button')) return;
+                    if (event.target.type === 'checkbox') return;
+                    state.selectedName = item.name;
+                    renderAll();
+                });
+
+                els.galleryGrid.appendChild(card);
+            }
+
+            if (state.focusAfterRender) {
+                const targetCard = els.galleryGrid.querySelector(`.card[data-name="${CSS.escape(state.focusAfterRender)}"]`);
+                if (targetCard) {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                state.focusAfterRender = null;
+            } else {
+                scrollContainer.scrollTop = scrollY;
+            }
+        }
+
+        function badge(text) {
+            const el = document.createElement('span');
+            el.className = 'badge';
+            el.textContent = text;
+            return el;
+        }
+
+        function tagMini(text, kind) {
+            const el = document.createElement('span');
+            el.className = `chip mini ${kind || 'secondary'}`;
+            el.textContent = text;
+            return el;
+        }
+
+        function actionButton(text, handler) {
+            const btn = document.createElement('button');
+            btn.className = 'secondary';
+            btn.textContent = text;
+            btn.addEventListener('click', handler);
+            return btn;
+        }
+
+        // ── Server-based Folder Browser ──────────────────────────────────
+        const SERVER = 'http://localhost:3001';
+        let browserStack = []; // stack of paths for Back navigation
+        let currentBrowserPath = ''; // '' = Camera root
+
+        // tooltip element (singleton)
+        const tooltip = document.createElement('div');
+        tooltip.className = 'fbl-tooltip';
+        tooltip.innerHTML = '<img id="tooltipImg" src="" alt="preview"><div class="fbl-tooltip-name" id="tooltipName"></div>';
+        document.body.appendChild(tooltip);
+        const tooltipImg = document.getElementById('tooltipImg');
+        const tooltipName = document.getElementById('tooltipName');
+
+        // Hide tooltip on any click anywhere
+        document.addEventListener('click', () => tooltip.classList.remove('visible'));
+
+        async function loadBrowserFolder(subPath) {
+            const listEl = document.getElementById('folderBrowserList');
+            const pathEl = document.getElementById('browserPath');
+            listEl.innerHTML = '<div class="note">Loading…</div>';
+            currentBrowserPath = subPath;
+            pathEl.textContent = subPath ? `F:\\Camera\\${subPath}` : 'F:\\Camera';
+            document.getElementById('mainBackBtn').disabled = browserStack.length === 0;
+
+            try {
+                const url = subPath
+                    ? `${SERVER}/api/browse-camera/${encodeURIComponent(subPath)}`
+                    : `${SERVER}/api/browse-camera`;
+                const res = await fetch(url);
+                const entries = await res.json();
+
+                listEl.innerHTML = '';
+                const dirs = entries.filter(e => e.isDir);
+
+                if (!dirs.length) {
+                    listEl.innerHTML = '<div class="note">No subfolders found.</div>';
+                    return;
+                }
+
+                for (const entry of dirs) {
+                    const row = document.createElement('div');
+                    row.className = 'fbl-item';
+
+                    const icon = document.createElement('span');
+                    icon.className = 'fbl-icon';
+                    icon.textContent = '📁';
+
+                    const nameEl = document.createElement('span');
+                    nameEl.className = 'fbl-name';
+                    nameEl.textContent = entry.name;
+                    nameEl.title = entry.name;
+
+                    const countEl = document.createElement('span');
+                    countEl.className = 'fbl-count';
+                    countEl.textContent = entry.imageCount > 0 ? `${entry.imageCount} img` : 'empty';
+
+                    const openBtn = document.createElement('button');
+                    openBtn.className = 'fbl-open-btn';
+                    openBtn.textContent = 'Open';
+                    openBtn.title = `Open ${entry.name} in trainer`;
+                    openBtn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        tooltip.classList.remove('visible');
+                        await openFolderInTrainer(subPath, entry.name);
+                    });
+
+                    row.appendChild(icon);
+                    row.appendChild(nameEl);
+                    row.appendChild(countEl);
+                    row.appendChild(openBtn);
+
+                    // Click row = open folder in trainer
+                    row.addEventListener('click', async (e) => {
+                        if (e.target.closest('button')) return;
+                        tooltip.classList.remove('visible');
+                        await openFolderInTrainer(subPath, entry.name);
+                    });
+
+                    // Hover preview tooltip
+                    if (entry.preview) {
+                        const folderKey = subPath ? `${subPath}/${entry.name}` : entry.name;
+                        const previewUrl = `${SERVER}/api/camera-preview/${encodeURIComponent(folderKey)}/${encodeURIComponent(entry.preview)}`;
+                        row.addEventListener('mouseenter', (e) => {
+                            tooltipImg.src = previewUrl;
+                            tooltipName.textContent = entry.name;
+                            tooltip.classList.add('visible');
+                            positionTooltip(e);
+                        });
+                        row.addEventListener('mousemove', positionTooltip);
+                        row.addEventListener('mouseleave', () => {
+                            tooltip.classList.remove('visible');
+                        });
+                    }
+
+                    listEl.appendChild(row);
+                }
+            } catch (err) {
+                listEl.innerHTML = `<div class="note" style="color:#ff8da0;">Error loading: ${err.message}<br>Make sure the server is running.</div>`;
+            }
+        }
+
+        function positionTooltip(e) {
+            const pad = 14;
+            let x = e.clientX + pad;
+            let y = e.clientY + pad;
+            if (x + 230 > window.innerWidth) x = e.clientX - 230 - pad;
+            if (y + 260 > window.innerHeight) y = e.clientY - 260 - pad;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+        }
+
+        function goBackBrowser() {
+            if (!browserStack.length) return;
+            const prev = browserStack.pop();
+            loadBrowserFolder(prev);
+        }
+
+        function showBrowserPanel() {
+            document.getElementById('mainBrowserPanel').style.display = '';
+            document.getElementById('workspacePanel').style.display = 'none';
+            // reset state
+            state.dirHandle = null;
+            state.dirName = '';
+            state.items = [];
+            state.folders = [];
+            state.selectedName = '';
+            // disable action buttons
+            els.renameBtn.disabled = true;
+            els.txtBtn.disabled = true;
+            els.upscaleBtn.disabled = true;
+            els.tagBtn.disabled = true;
+            els.verifyBtn.disabled = true;
+            els.triggerInput.disabled = true;
+            els.triggerBtn.disabled = true;
+            els.openTagSpaceBtn.disabled = true;
+            els.taggingSection.classList.add('hidden');
+            els.folderTitle.textContent = 'No folder selected';
+            els.folderSubtitle.textContent = 'Browse and open a dataset folder below.';
+            els.chipFolder.textContent = 'Folder: none';
+            els.chipSelected.textContent = 'Selected: none';
+            setStatus('Idle');
+            loadBrowserFolder(currentBrowserPath);
+        }
+
+        function showWorkspacePanel() {
+            document.getElementById('mainBrowserPanel').style.display = 'none';
+            document.getElementById('workspacePanel').style.display = '';
+        }
+
+        async function openFolderInTrainer(parentPath, folderName) {
+            // No File System API needed — server handles all file operations
+            state.dirName = folderName;
+            state.dirHandle = folderName; // used as truthy marker
+            state.folderTrail = [folderName];
+            state.history = [];
+            state.selectedName = '';
+            showWorkspacePanel();
+            els.galleryGrid.parentElement.scrollTop = 0;
+            log(`Opening: ${folderName}...`, 'ok');
+            await readDirectory();
+            setStatus('Ready');
+        }
+
+        async function enterFolder(folder) {
+            if (!folder || !folder.handle) return;
+            state.history.push({
+                dirHandle: state.dirHandle,
+                dirName: state.dirName,
+                folderTrail: [...state.folderTrail]
+            });
+            state.dirHandle = folder.handle;
+            state.dirName = folder.name;
+            state.folderTrail = [...state.folderTrail, folder.name];
+            state.selectedName = '';
+            await readDirectory();
+            setStatus('Ready');
+            log(`Opened folder: ${currentFolderLabel()}`, 'ok');
+        }
+
+        async function goUpFolder() {
+            const previous = state.history.pop();
+            if (!previous) return;
+            state.dirHandle = previous.dirHandle;
+            state.dirName = previous.dirName;
+            state.folderTrail = previous.folderTrail;
+            state.selectedName = '';
+            await readDirectory();
+            setStatus('Ready');
+            log(`Returned to: ${currentFolderLabel()}`, 'ok');
+        }
+
+        // Write a blob as a file via server API
+        async function writeBlobToName(sourceBlob, fileName) {
+            const buf = await sourceBlob.arrayBuffer();
+            await fetch(
+                `${SERVER}/api/trainer/${encodeURIComponent(state.dirName)}/write/${encodeURIComponent(fileName)}`,
+                { method: 'POST', headers: { 'Content-Type': sourceBlob.type || 'application/octet-stream' }, body: buf }
+            );
+        }
+
+        async function removeEntry(fileName) {
+            await fetch(
+                `${SERVER}/api/trainer/${encodeURIComponent(state.dirName)}/file/${encodeURIComponent(fileName)}`,
+                { method: 'DELETE' }
+            );
+        }
+
+        async function readItemBlob(item) {
+            // Fetch from server and return a Blob (needed for canvas crop)
+            const res = await fetch(imgUrlFor(item));
+            const blob = await res.blob();
+            item.blob = blob;
+            return blob;
+        }
+
+        async function duplicateImagePrompt(item) {
+            const countRaw = prompt(`How many copies do you want for "${item.name}"?`, '1');
+            if (countRaw === null) return;
+            const count = Math.max(1, parseInt(countRaw, 10) || 0);
+            if (count < 1) return;
+
+            await duplicateImage(item, count);
+            await readDirectory();
+            log(`Duplicated ${item.name} x${count}`, 'ok');
+            setStatus('Duplicated');
+        }
+
+        async function duplicateImage(item, count) {
+            const source = await readItemBlob(item);
+            const ext = getExt(item.name) || 'jpg';
+            const base = getBase(item.name);
+            const existing = new Set(state.items.map(x => x.name.toLowerCase()));
+
+            for (let i = 1; i <= count; i++) {
+                let candidate = `${base}_copy${i}.${ext}`;
+                let suffix = i;
+                while (existing.has(candidate.toLowerCase())) {
+                    suffix += 1;
+                    candidate = `${base}_copy${suffix}.${ext}`;
+                }
+                await writeBlobToName(source, candidate);
+                existing.add(candidate.toLowerCase());
+            }
+        }
+
+        async function createTxtDocsForAll() {
+            if (!state.items.length || !state.dirName) return;
+            setStatus('Creating txts...');
+            const res = await fetch(`${SERVER}/api/trainer/${encodeURIComponent(state.dirName)}/create-txts`, { method: 'POST' });
+            const data = await res.json();
+            log(`Created ${data.created?.length || 0} txt file(s).`, 'ok');
+            setStatus('Txt ready');
+            await readDirectory();
+        }
+
+        async function renameAllImages() {
+            if (!state.items.length || state.renaming || !state.dirName) return;
+            state.renaming = true;
+            els.renameBtn.disabled = true;
+            setStatus('Renaming...');
+            log('Renaming all images via server...', 'warn');
+            try {
+                const res = await fetch(`${SERVER}/api/trainer/${encodeURIComponent(state.dirName)}/rename`, { method: 'POST' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error);
+                log(`Renamed ${data.renamed?.length || 0} image(s).`, 'ok');
+                setStatus('Renamed');
+                await readDirectory();
+            } catch (err) {
+                log(`Rename failed: ${err.message}`, 'error');
+            } finally {
+                state.renaming = false;
+                els.renameBtn.disabled = !state.items.length;
+            }
+        }
+
+        async function triggerUpscale() {
+            if (!state.dirName) return;
+            if (!confirm('This will upscale all images with Upscayl 4x. This process takes a long time and will overwrite existing images. Continue?')) return;
+            
+            els.upscaleBtn.disabled = true;
+            els.upscaleBtn.textContent = '⏳ Upscaling...';
+            log('Starting upscaler pipeline...', 'warn');
+
+            const bar = document.getElementById('workflowBar');
+            bar.style.width = '0%';
+
+            await new Promise((resolve) => {
+                const url = `${SERVER}/api/upscale?folder=${encodeURIComponent(state.dirName)}`;
+                const es = new EventSource(url);
+
+                es.onmessage = (e) => {
+                    const msg = JSON.parse(e.data);
+
+                    if (msg.type === 'start') {
+                        const skipNote = msg.skipped > 0 ? ` (skipping ${msg.skipped} already done)` : '';
+                        log(`Found ${msg.total} image(s) to upscale${skipNote}. Resuming...`, 'warn');
+
+                    } else if (msg.type === 'progress') {
+                        const pct = Math.round(((msg.current - 1) / msg.total) * 100);
+                        bar.style.width = pct + '%';
+                        els.upscaleBtn.textContent = `⏳ ${msg.current}/${msg.total} — ${msg.image}`;
+                        log(`Upscaling (${msg.current}/${msg.total}): ${msg.image}`, 'warn');
+
+                    } else if (msg.type === 'done_image') {
+                        const pct = Math.round((msg.current / msg.total) * 100);
+                        bar.style.width = pct + '%';
+                        log(`✓ Done: ${msg.image} → ${msg.output}`, 'ok');
+
+                    } else if (msg.type === 'complete') {
+                        bar.style.width = '100%';
+                        log(`🎉 Upscale complete! ${msg.processed} image(s) processed.`, 'ok');
+                        es.close();
+                        readDirectory();
+                        resolve();
+
+                    } else if (msg.type === 'error') {
+                        log(`Upscale failed: ${msg.message}`, 'error');
+                        es.close();
+                        resolve();
+                    }
+                };
+
+                es.onerror = () => {
+                    log('Connection lost during upscale.', 'error');
+                    es.close();
+                    resolve();
+                };
+            });
+
+            els.upscaleBtn.disabled = false;
+            els.upscaleBtn.textContent = 'Upscale All (4x)';
+        }
+
+        async function batchResizeSelected() {
+            const selected = state.items.filter(i => i.selected);
+            if (!selected.length) return;
+            const confirmResize = confirm("This will resize selected images to max 1500px and compress to JPEG. Continue?");
+            if (!confirmResize) return;
+            setStatus('Batch resizing...');
+            log(`Starting batch resize for ${selected.length} images...`, 'warn');
+            const files = selected.map(i => i.name);
+            try {
+                const res = await fetch(`${SERVER}/api/trainer/${encodeURIComponent(state.dirName)}/batch-resize`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ files })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    log(`Batch resize completed. Resized ${data.resized?.length || 0} image(s).`, 'ok');
+                    if (data.errors?.length) {
+                        log(`Encountered ${data.errors.length} error(s).`, 'error');
+                    }
+                } else {
+                    log(`Batch resize failed: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                log(`Batch resize failed: ${err.message}`, 'error');
+            }
+            await readDirectory();
+            setStatus('Done resizing');
+        }
+
+        async function batchTagSelected() {
+            const selected = state.items.filter(i => i.selected);
+            if (!selected.length) return;
+            setStatus('Batch tagging...');
+            for(const item of selected) {
+                try {
+                    const imgRes = await fetch(imgUrlFor(item));
+                    const file = await imgRes.blob();
+                    const { tags } = await getWd14Tags(file, item.name);
+                    await fetch(`${SERVER}/api/trainer/${encodeURIComponent(state.dirName)}/txt/${encodeURIComponent(item.txtName)}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ content: tags })
+                    });
+                    log(`Tagged ${item.name}`, 'ok');
+                } catch(e) { log(`Error tagging ${item.name}: ${e.message}`, 'error'); }
+            }
+            await readDirectory();
+            setStatus('Done tagging');
+        }
+
+        async function verifySet() {
+
+            if (!state.items.length) return;
+
+            const renamed = state.items.filter(item => /^image\d+\.[^.]+$/i.test(item.name));
+            const txtFiles = state.items.filter(item => item.hasTxt);
+            const tagged = state.items.filter(item => item.tagText.trim().length > 0);
+            const missingTxt = state.items.filter(item => !item.hasTxt).map(item => item.txtName);
+            const missingTags = state.items.filter(item => !item.tagText.trim()).map(item => item.txtName);
+            const allRenamed = renamed.length === state.items.length;
+            const allTxt = txtFiles.length === state.items.length;
+            const allTagged = tagged.length === state.items.length;
+
+            els.verifierChips.innerHTML = '';
+            els.verifierChips.appendChild(chip(allRenamed ? 'All renamed' : `${renamed.length}/${state.items.length} renamed`, allRenamed ? 'ok' : 'warn'));
+            els.verifierChips.appendChild(chip(allTxt ? 'All txt present' : `${missingTxt.length} missing txt`, allTxt ? 'ok' : 'warn'));
+            els.verifierChips.appendChild(chip(allTagged ? 'All tagged' : `${missingTags.length} missing tags`, allTagged ? 'ok' : 'warn'));
+
+            log(`Verifier: renamed=${renamed.length}/${state.items.length}, txt=${txtFiles.length}/${state.items.length}, tagged=${tagged.length}/${state.items.length}`, allRenamed && allTxt && allTagged ? 'ok' : 'warn');
+        }
+
+        async function openTaggingSite() {
+            window.open(TAGGING_URL, '_blank', 'noopener,noreferrer');
+        }
+
+        function renderTaggingPanel() {
+            const item = state.items.find(i => i.name === state.selectedName);
+            if (!item) {
+                els.queueCurrent.textContent = 'No image selected';
+                els.tagPreview.removeAttribute('src');
+                els.tagTextarea.value = '';
+                return;
+            }
+
+            els.queueCurrent.textContent = item.name;
+            els.tagPreview.src = imgUrlFor(item);
+            els.tagTextarea.value = item.tagText || '';
+        }
+
+        async function saveCurrentTag() {
+            const item = state.items.find(i => i.name === state.selectedName);
+            if (!item || !state.dirName) return;
+
+            const text = els.tagTextarea.value.trim();
+            await fetch(
+                `${SERVER}/api/trainer/${encodeURIComponent(state.dirName)}/txt/${encodeURIComponent(item.txtName)}`,
+                { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: text }) }
+            );
+            log(`Saved tags to ${item.txtName}`, 'ok');
+            await readDirectory();
+            renderAll();
+        }
+
+
+
+        async function removeImageItem(item) {
+            if (!confirm(`Delete "${item.name}"${item.hasTxt ? ` and "${item.txtName}"` : ''}?\n\nThis cannot be undone.`)) return;
+            try {
+                await removeEntry(item.name);
+                log(`Deleted ${item.name}`, 'warn');
+            } catch (e) {
+                log(`Could not delete ${item.name}: ${e.message}`, 'error');
+            }
+            if (item.hasTxt) {
+                try {
+                    await removeEntry(item.txtName);
+                    log(`Deleted ${item.txtName}`, 'warn');
+                } catch (e) { }
+            }
+            await readDirectory();
+        }
+
+        async function addTriggerWord() {
+            const trigger = els.triggerInput.value.trim();
+            if (!trigger) { alert('Enter a trigger word first.'); return; }
+            if (!state.items.length || !state.dirName) return;
+
+            const res = await fetch(
+                `${SERVER}/api/trainer/${encodeURIComponent(state.dirName)}/trigger`,
+                { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ trigger }) }
+            );
+            const data = await res.json();
+            log(`Trigger word "${trigger}" added to ${data.updated || 0} txt file(s).`, 'ok');
+            await readDirectory();
+            renderAll();
+        }
+
+        function loadCropModal(item) {
+            state.cropItem = item;
+            state.cropRect = null;
+            state.cropDrag = null;
+            els.cropTitle.textContent = `Crop: ${item.name}`;
+            els.cropName.textContent = item.name;
+            els.cropInfoList.innerHTML = '';
+            els.cropInfoList.appendChild(tagMini(item.hasTxt ? 'txt present' : 'no txt', item.hasTxt ? 'ok' : 'warn'));
+            els.cropInfoList.appendChild(tagMini(item.tagText ? 'tagged' : 'untagged', item.tagText ? 'ok' : 'warn'));
+            // Use direct server URL
+            const url = imgUrlFor(item);
+            els.cropThumb.src = url;
+            els.cropImage.src = url;
+        }
+
+        async function openCrop(item) {
+            loadCropModal(item);
+            els.cropModal.classList.add('open');
+            requestAnimationFrame(() => setFullSelection());
+        }
+
+        function closeCrop() {
+            els.cropModal.classList.remove('open');
+            state.cropItem = null;
+            state.cropRect = null;
+            state.cropDrag = null;
+            resetEraseState();
+        }
+
+        function stageRect() {
+            return els.cropStage.getBoundingClientRect();
+        }
+
+        function imageRenderRect() {
+            const stage = stageRect();
+            const image = els.cropImage.getBoundingClientRect();
+            return {
+                left: image.left - stage.left,
+                top: image.top - stage.top,
+                width: image.width,
+                height: image.height
+            };
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        function updateSelectionUI() {
+            if (!state.cropRect) {
+                els.selectionBox.style.display = 'none';
+                els.cropDims.textContent = '0 x 0';
+                return;
+            }
+            const rect = state.cropRect;
+            els.selectionBox.style.display = 'block';
+            els.selectionBox.style.left = rect.x + 'px';
+            els.selectionBox.style.top = rect.y + 'px';
+            els.selectionBox.style.width = rect.w + 'px';
+            els.selectionBox.style.height = rect.h + 'px';
+            els.cropDims.textContent = `${Math.round(rect.w)} x ${Math.round(rect.h)} px`;
+        }
+
+        function setFullSelection() {
+            const rect = imageRenderRect();
+            if (!rect.width || !rect.height) return;
+            state.cropRect = { x: rect.left, y: rect.top, w: rect.width, h: rect.height };
+            updateSelectionUI();
+        }
+
+        function pointOnImage(evt) {
+            const rect = imageRenderRect();
+            const stage = stageRect();
+            return {
+                x: clamp(evt.clientX - stage.left, rect.left, rect.left + rect.width),
+                y: clamp(evt.clientY - stage.top, rect.top, rect.top + rect.height)
+            };
+        }
+
+        els.cropStage.addEventListener('pointerdown', (evt) => {
+            if (!state.cropItem) return;
+            // Handled by the selection box / handle listeners below
+        });
+
+        els.cropStage.addEventListener('pointermove', (evt) => {
+            // handled below
+        });
+
+        els.cropStage.addEventListener('pointerup', () => {
+            state.cropDrag = null;
+        });
+
+        els.cropStage.addEventListener('pointerleave', () => {
+            state.cropDrag = null;
+        });
+
+        // ── Crop box move & resize via handles ───────────────────────────────
+        (function setupCropInteraction() {
+            let drag = null; // { type: 'move'|handle, startX, startY, origRect }
+
+            function getImageBounds() {
+                const stage = els.cropStage.getBoundingClientRect();
+                const img = els.cropImage.getBoundingClientRect();
+                return {
+                    left: img.left - stage.left,
+                    top: img.top - stage.top,
+                    width: img.width,
+                    height: img.height
+                };
+            }
+
+            function clampRect(r) {
+                const b = getImageBounds();
+                const MIN = 20;
+                let { x, y, w, h } = r;
+                w = Math.max(MIN, w);
+                h = Math.max(MIN, h);
+                x = Math.max(b.left, Math.min(x, b.left + b.width - w));
+                y = Math.max(b.top, Math.min(y, b.top + b.height - h));
+                // clamp right/bottom edges
+                if (x + w > b.left + b.width) w = b.left + b.width - x;
+                if (y + h > b.top + b.height) h = b.top + b.height - y;
+                return { x, y, w: Math.max(MIN, w), h: Math.max(MIN, h) };
+            }
+
+            els.selectionBox.addEventListener('pointerdown', (evt) => {
+                if (!state.cropItem) return;
+                const handle = evt.target.dataset.handle;
+                evt.stopPropagation();
+                drag = {
+                    type: handle || 'move',
+                    startX: evt.clientX,
+                    startY: evt.clientY,
+                    origRect: { ...state.cropRect }
+                };
+                els.selectionBox.setPointerCapture(evt.pointerId);
+                evt.preventDefault();
+            });
+
+            els.selectionBox.addEventListener('pointermove', (evt) => {
+                if (!drag || !state.cropRect) return;
+                const dx = evt.clientX - drag.startX;
+                const dy = evt.clientY - drag.startY;
+                const o = drag.origRect;
+                let { x, y, w, h } = o;
+
+                switch (drag.type) {
+                    case 'move': x += dx; y += dy; break;
+                    case 'se': w += dx; h += dy; break;
+                    case 'sw': x += dx; w -= dx; h += dy; break;
+                    case 'ne': w += dx; y += dy; h -= dy; break;
+                    case 'nw': x += dx; w -= dx; y += dy; h -= dy; break;
+                    case 's': h += dy; break;
+                    case 'n': y += dy; h -= dy; break;
+                    case 'e': w += dx; break;
+                    case 'w': x += dx; w -= dx; break;
+                }
+
+                state.cropRect = clampRect({ x, y, w, h });
+                updateSelectionUI();
+            });
+
+            els.selectionBox.addEventListener('pointerup', () => { drag = null; });
+            els.selectionBox.addEventListener('pointercancel', () => { drag = null; });
+        })();
+
+        async function saveCrop() {
+            const item = state.cropItem;
+            if (!item || !state.cropRect) return;
+
+            const image = new Image();
+            image.crossOrigin = 'anonymous';
+            await new Promise((resolve, reject) => {
+                image.onload = resolve;
+                image.onerror = reject;
+                image.src = blobUrlFor(item);
+            });
+
+            const stage = imageRenderRect();
+            const scaleX = image.naturalWidth / stage.width;
+            const scaleY = image.naturalHeight / stage.height;
+            const cropX = Math.max(0, Math.round((state.cropRect.x - stage.left) * scaleX));
+            const cropY = Math.max(0, Math.round((state.cropRect.y - stage.top) * scaleY));
+            const cropW = Math.max(1, Math.round(state.cropRect.w * scaleX));
+            const cropH = Math.max(1, Math.round(state.cropRect.h * scaleY));
+
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.min(cropW, image.naturalWidth - cropX);
+            canvas.height = Math.min(cropH, image.naturalHeight - cropY);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(image, cropX, cropY, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+
+            // Composite erase strokes directly over the cropped region
+            const eraseCanvas = document.getElementById('eraseCanvas');
+            if (hasEraseContent && eraseCanvas) {
+                ctx.drawImage(eraseCanvas, cropX, cropY, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            }
+
+            const ext = getExt(item.name) || 'jpg';
+            const mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+            const quality = mime === 'image/jpeg' ? 0.96 : undefined;
+
+            const resultBlob = await new Promise((resolve) => {
+                if (mime === 'image/jpeg') {
+                    canvas.toBlob(resolve, mime, quality);
+                } else {
+                    canvas.toBlob(resolve, mime);
+                }
+            });
+
+            if (!resultBlob) {
+                log(`Crop failed for ${item.name}.`, 'error');
+                return;
+            }
+
+            // Save as a NEW file — leave the original untouched
+            const base = getBase(item.name);
+            const existingNames = new Set(state.items.map(x => x.name.toLowerCase()));
+            let cropName = `${base}_crop.${ext}`;
+            let suffix = 2;
+            while (existingNames.has(cropName.toLowerCase())) {
+                cropName = `${base}_crop${suffix}.${ext}`;
+                suffix++;
+            }
+
+            await writeBlobToName(resultBlob, cropName);
+            log(`Saved crop as ${cropName} (original ${item.name} untouched)`, 'ok');
+            state.selectedName = cropName;
+            state.focusAfterRender = cropName;
+            await readDirectory();
+            closeCrop();
+        }
+
+        function openCropInfo() {
+            const item = state.cropItem;
+            if (!item) return;
+            els.cropHint.textContent = `File: ${item.name}. Drag a rectangle freely, then save.`;
+        }
+
+        // ── Erase Tool Logic ────────────────────────────────────────────────
+        let eraseMode = false;
+        let eraseColor = '#ffffff';
+        let eraseBrushSize = 35;
+        let eraseHistory = [];
+        let hasEraseContent = false;
+        let isPainting = false;
+        let lastPaintPoint = null;
+
+        function syncEraseCanvasPosition() {
+            const eraseCanvas = document.getElementById('eraseCanvas');
+            if (!eraseCanvas || !els.cropImage) return;
+            const rect = imageRenderRect();
+            if (!rect.width || !rect.height) return;
+            eraseCanvas.style.left = rect.left + 'px';
+            eraseCanvas.style.top = rect.top + 'px';
+            eraseCanvas.style.width = rect.width + 'px';
+            eraseCanvas.style.height = rect.height + 'px';
+            
+            const natW = els.cropImage.naturalWidth || rect.width;
+            const natH = els.cropImage.naturalHeight || rect.height;
+            if (eraseCanvas.width !== natW || eraseCanvas.height !== natH) {
+                eraseCanvas.width = natW;
+                eraseCanvas.height = natH;
+            }
+        }
+
+        function resetEraseState() {
+            eraseMode = false;
+            hasEraseContent = false;
+            eraseHistory = [];
+            isPainting = false;
+            lastPaintPoint = null;
+            const btn = document.getElementById('eraseModeBtn');
+            if (btn) {
+                btn.className = 'secondary';
+                btn.innerHTML = '🧹 Erase';
+            }
+            const toolbar = document.getElementById('eraseToolbar');
+            if (toolbar) toolbar.style.display = 'none';
+            const eraseCanvas = document.getElementById('eraseCanvas');
+            if (eraseCanvas) {
+                eraseCanvas.style.display = 'none';
+                eraseCanvas.style.pointerEvents = 'none';
+                const ctx = eraseCanvas.getContext('2d');
+                ctx.clearRect(0, 0, eraseCanvas.width, eraseCanvas.height);
+            }
+        }
+
+        function toggleEraseMode() {
+            eraseMode = !eraseMode;
+            const btn = document.getElementById('eraseModeBtn');
+            const toolbar = document.getElementById('eraseToolbar');
+            const eraseCanvas = document.getElementById('eraseCanvas');
+
+            if (eraseMode) {
+                if (btn) {
+                    btn.className = 'primary';
+                    btn.innerHTML = '🧹 Erase Mode (Active)';
+                }
+                if (toolbar) toolbar.style.display = 'flex';
+                if (eraseCanvas) {
+                    syncEraseCanvasPosition();
+                    eraseCanvas.style.display = 'block';
+                    eraseCanvas.style.pointerEvents = 'auto';
+                    eraseCanvas.style.zIndex = '25';
+                }
+            } else {
+                if (btn) {
+                    btn.className = 'secondary';
+                    btn.innerHTML = '🧹 Erase';
+                }
+                if (toolbar) toolbar.style.display = 'none';
+                if (eraseCanvas) {
+                    eraseCanvas.style.display = hasEraseContent ? 'block' : 'none';
+                    eraseCanvas.style.pointerEvents = 'none';
+                    eraseCanvas.style.zIndex = '5';
+                }
+            }
+        }
+
+        function setEraseColor(color, btn) {
+            eraseColor = color;
+            document.querySelectorAll('.erase-color-btn').forEach(b => {
+                b.style.border = '2px solid #555';
+            });
+            if (btn) {
+                btn.style.border = '2px solid var(--accent)';
+            }
+            const customInput = document.getElementById('eraseCustomColor');
+            if (customInput && !btn) customInput.value = color;
+        }
+
+        function setEraseBrushSize(size) {
+            eraseBrushSize = parseInt(size, 10) || 35;
+            const label = document.getElementById('eraseBrushSizeLabel');
+            if (label) label.textContent = `${eraseBrushSize}px`;
+        }
+
+        function undoErase() {
+            const eraseCanvas = document.getElementById('eraseCanvas');
+            if (!eraseCanvas || eraseHistory.length === 0) return;
+            const ctx = eraseCanvas.getContext('2d');
+            const prevState = eraseHistory.pop();
+            ctx.putImageData(prevState, 0, 0);
+            if (eraseHistory.length === 0) hasEraseContent = false;
+        }
+
+        function clearAllErases() {
+            const eraseCanvas = document.getElementById('eraseCanvas');
+            if (!eraseCanvas) return;
+            const ctx = eraseCanvas.getContext('2d');
+            if (hasEraseContent) {
+                if (eraseHistory.length > 20) eraseHistory.shift();
+                eraseHistory.push(ctx.getImageData(0, 0, eraseCanvas.width, eraseCanvas.height));
+            }
+            ctx.clearRect(0, 0, eraseCanvas.width, eraseCanvas.height);
+            hasEraseContent = false;
+            if (!eraseMode) eraseCanvas.style.display = 'none';
+        }
+
+        function setupEraseCanvasEvents() {
+            const eraseCanvas = document.getElementById('eraseCanvas');
+            if (!eraseCanvas) return;
+            const ctx = eraseCanvas.getContext('2d');
+
+            function getCoords(evt) {
+                const b = eraseCanvas.getBoundingClientRect();
+                const mouseX = evt.clientX - b.left;
+                const mouseY = evt.clientY - b.top;
+                const scaleX = eraseCanvas.width / b.width;
+                const scaleY = eraseCanvas.height / b.height;
+                return {
+                    x: mouseX * scaleX,
+                    y: mouseY * scaleY,
+                    scale: scaleX
+                };
+            }
+
+            eraseCanvas.addEventListener('pointerdown', (evt) => {
+                if (!eraseMode) return;
+                isPainting = true;
+                eraseCanvas.setPointerCapture(evt.pointerId);
+
+                if (eraseHistory.length > 20) eraseHistory.shift();
+                eraseHistory.push(ctx.getImageData(0, 0, eraseCanvas.width, eraseCanvas.height));
+
+                const p = getCoords(evt);
+                lastPaintPoint = p;
+
+                ctx.fillStyle = eraseColor;
+                ctx.strokeStyle = eraseColor;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, (eraseBrushSize * p.scale) / 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                hasEraseContent = true;
+            });
+
+            eraseCanvas.addEventListener('pointermove', (evt) => {
+                if (!isPainting || !eraseMode || !lastPaintPoint) return;
+                const p = getCoords(evt);
+
+                ctx.strokeStyle = eraseColor;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.lineWidth = eraseBrushSize * p.scale;
+
+                ctx.beginPath();
+                ctx.moveTo(lastPaintPoint.x, lastPaintPoint.y);
+                ctx.lineTo(p.x, p.y);
+                ctx.stroke();
+
+                lastPaintPoint = p;
+                hasEraseContent = true;
+            });
+
+            const stop = () => {
+                isPainting = false;
+                lastPaintPoint = null;
+            };
+
+            eraseCanvas.addEventListener('pointerup', stop);
+            eraseCanvas.addEventListener('pointercancel', stop);
+        }
+
+        els.cropImage.addEventListener('load', () => {
+            if (!state.cropItem) return;
+            openCropInfo();
+            resetEraseState();
+            setTimeout(() => {
+                setFullSelection();
+                syncEraseCanvasPosition();
+            }, 50);
+        });
+
+        els.cropModal.addEventListener('click', (evt) => {
+            if (evt.target === els.cropModal) closeCrop();
+        });
+
+        setupEraseCanvasEvents();
+
+        document.getElementById('mainBackBtn').addEventListener('click', goBackBrowser);
+        document.getElementById('mainRefreshBtn').addEventListener('click', () => loadBrowserFolder(currentBrowserPath));
+
+        // Sidebar "← Back to Browser" button
+        document.getElementById('backBtn').addEventListener('click', showBrowserPanel);
+        // Main view back button
+        document.getElementById('workspaceBackBtn').addEventListener('click', showBrowserPanel);
+        document.getElementById('refreshBtn').addEventListener('click', async () => {
+            if (state.dirName) {
+                await readDirectory();
+                log('Refreshed.', 'ok');
+            }
+        });
+        els.renameBtn.addEventListener('click', renameAllImages);
+        els.txtBtn.addEventListener('click', createTxtDocsForAll);
+        els.upscaleBtn.addEventListener('click', triggerUpscale);
+        els.batchResizeBtn.addEventListener('click', batchResizeSelected);
+        els.batchTagBtn.addEventListener('click', batchTagSelected);
+        els.selectAllBtn.addEventListener('click', toggleSelectAll);
+
+        async function autoTagAllImages() {
+            log('Starting automatic tagging...', 'warn');
+            for (let i = 0; i < state.items.length; i++) {
+                const item = state.items[i];
+
+                els.tagBtn.textContent = `Tagging (${i + 1}/${state.items.length})...`;
+                log(`Tagging ${item.name}...`);
+
+                try {
+                    // Fetch image from server as a blob
+                    const imgRes = await fetch(imgUrlFor(item));
+                    const file = await imgRes.blob();
+                    const { tags, source } = await getWd14Tags(file, item.name);
+                    await fetch(
+                        `${SERVER}/api/trainer/${encodeURIComponent(state.dirName)}/txt/${encodeURIComponent(item.txtName)}`,
+                        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: tags }) }
+                    );
+                    item.tagText = tags;
+                    log(`Tagged ${item.name} successfully via ${source}.`, 'ok');
+                } catch (err) {
+                    log(`Failed to tag ${item.name}: ${err.message}`, 'error');
+                    if (/Server returned 5\d\d|fetch failed|Failed to fetch/i.test(err.message)) {
+                        log('Tagging service is unavailable. Stopping.', 'error');
+                        break;
+                    }
+                }
+            }
+            log('Automatic tagging complete', 'ok');
+            await readDirectory();
+        }
+
+        els.tagBtn.addEventListener('click', async () => {
+            if (!state.items.length) return;
+            els.tagBtn.disabled = true;
+            const originalText = els.tagBtn.textContent;
+            try {
+                await autoTagAllImages();
+            } finally {
+                els.tagBtn.textContent = originalText;
+                await verifySet();
+                renderAll();
+            }
+        });
+        els.verifyBtn.addEventListener('click', verifySet);
+        els.openTagSpaceBtn.addEventListener('click', openTaggingSite);
+        els.triggerBtn.addEventListener('click', addTriggerWord);
+        els.saveTagBtn.addEventListener('click', saveCurrentTag);
+        els.saveCropBtn.addEventListener('click', saveCrop);
+        els.closeCropBtn.addEventListener('click', closeCrop);
+        els.fullCropBtn.addEventListener('click', setFullSelection);
+
+        async function bootstrap() {
+            setStatus('Idle');
+            els.taggingSection.classList.add('hidden');
+            log('Trainer ready. Click any folder to open its images and txt files.');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const folderToOpen = urlParams.get('folder');
+            
+            if (folderToOpen) {
+                await openFolderInTrainer('', folderToOpen);
+                
+                // Clean up URL so refresh doesn't force re-open if they navigated away
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else {
+                await loadBrowserFolder('');
+            }
+        }
+
+        bootstrap();
+    </script>
+</body>
+
+</html>

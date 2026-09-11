@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comic Nexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --surface2: #1e1e1e;
+            --border: #2a2a2a;
+            --accent: #e8c547;
+            --accent2: #ff4d6d;
+            --text: #e8e8e8;
+            --text-muted: #888;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: 270px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo {
+            padding: 22px 20px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.9rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .sidebar-logo p {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .search-wrap {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 9px 13px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-bar:focus {
+            border-color: var(--accent);
+        }
+
+        .search-bar::placeholder {
+            color: var(--text-muted);
+        }
+
+        .filter-section {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .filter-label {
+            font-size: 0.63rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .cat-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.84rem;
+            transition: background 0.15s;
+            color: var(--text-muted);
+        }
+
+        .cat-item:hover {
+            background: var(--surface2);
+            color: var(--text);
+        }
+
+        .cat-item.active {
+            background: rgba(232, 197, 71, 0.1);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .cat-count {
+            font-size: 0.7rem;
+            background: var(--surface2);
+            padding: 1px 7px;
+            border-radius: 10px;
+        }
+
+        .cat-item.active .cat-count {
+            background: rgba(232, 197, 71, 0.18);
+            color: var(--accent);
+        }
+
+        .bm-sidebar-item {
+            transition: all 0.2s;
+        }
+
+        .bm-sidebar-item:hover {
+            background: rgba(255, 77, 109, 0.08);
+            /* Pink hover */
+        }
+
+        .cat-item.active-bm {
+            background: rgba(255, 77, 109, 0.15) !important;
+            color: var(--accent2) !important;
+            font-weight: 600;
+            border-left: 3px solid var(--accent2);
+        }
+
+        .cat-item.active-bm .cat-count {
+            background: rgba(255, 77, 109, 0.25);
+            color: var(--accent2);
+        }
+
+        .sidebar-footer {
+            padding: 12px 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .bookmark-filter-btn {
+            width: 100%;
+            padding: 8px 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.83rem;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .bookmark-filter-btn:hover,
+        .bookmark-filter-btn.active {
+            border-color: var(--accent2);
+            color: var(--accent2);
+            background: rgba(255, 77, 109, 0.08);
+        }
+
+        .stats-txt {
+            font-size: 0.72rem;
+            color: #555;
+            text-align: center;
+        }
+
+        /* ── MAIN ── */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .main-header {
+            padding: 18px 26px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .main-header h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.35rem;
+            letter-spacing: 2px;
+        }
+
+        .count-badge {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            color: var(--text-muted);
+        }
+
+        .grid-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px 26px;
+        }
+
+        .comic-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .comic-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+            position: relative;
+            text-decoration: none;
+            display: block;
+            color: inherit;
+        }
+
+        .comic-card:hover {
+            transform: translateY(-5px);
+            border-color: #3a3a3a;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+        }
+
+        .card-thumb {
+            position: relative;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            background: #0d0d0d;
+        }
+
+        .card-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .comic-card:hover .card-thumb img {
+            transform: scale(1.05);
+        }
+
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, transparent 55%);
+            opacity: 0;
+            transition: opacity 0.22s;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 18px;
+        }
+
+        .comic-card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        /* PIN Overlay Styles */
+        #pinOverlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .pin-container {
+            background: var(--surface);
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+            width: 320px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .pin-container h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            color: var(--accent);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        #pinInput {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            color: var(--accent);
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 15px;
+            outline: none;
+            font-family: 'Bebas Neue', sans-serif;
+        }
+
+        #pinInput:focus {
+            border-color: var(--accent);
+        }
+
+        .pin-msg {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--accent2);
+            min-height: 1.2rem;
+        }
+
+        .open-label {
+            background: var(--accent);
+            color: #000;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 6px 18px;
+            border-radius: 20px;
+        }
+
+        .bm-btn {
+            position: absolute;
+            top: 9px;
+            right: 9px;
+            width: 32px;
+            height: 32px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 10;
+            backdrop-filter: blur(4px);
+            color: var(--text-muted);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bm-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+            color: var(--text);
+        }
+
+        .comic-card.bookmarked .bm-btn {
+            color: var(--accent2);
+            background: rgba(255, 77, 109, 0.2);
+        }
+
+        .card-info {
+            padding: 11px 13px 13px;
+            border-top: 1px solid var(--border);
+        }
+
+        .card-artist {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-title {
+            font-size: 0.86rem;
+            color: var(--text);
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-cat {
+            display: inline-block;
+            margin-top: 7px;
+            font-size: 0.66rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 3px;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state .icon {
+            font-size: 2.8rem;
+            margin-bottom: 14px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 35px;
+            padding-bottom: 30px;
+        }
+
+        .page-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .page-btn.active {
+            background: rgba(232, 197, 71, 0.15);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            border-radius: 6px;
+            border: 3px solid var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        /* ── NEXUS AI MODAL ── */
+        .nexus-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        .nexus-overlay.open {
+            display: flex;
+        }
+        .nexus-modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+            overflow: hidden;
+        }
+        .nexus-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .nexus-header h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #a78bfa, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .nexus-header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .nexus-close-btn, .nexus-refresh-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nexus-close-btn:hover { color: var(--accent2); border-color: var(--accent2); }
+        .nexus-refresh-btn:hover { color: #38bdf8; border-color: #38bdf8; }
+
+        /* ── AI Engine Controls ── */
+        .ai-engine-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            transition: all 0.25s ease;
+            margin-right: 15px;
+        }
+        .ai-engine-bar:hover {
+            border-color: #444;
+        }
+        .ai-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .ai-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #64748b;
+            display: inline-block;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .ai-status-dot.active {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+            animation: ai-pulse 2s infinite;
+        }
+        .ai-status-dot.stopped {
+            background: #64748b;
+            box-shadow: none;
+        }
+        .ai-status-dot.busy {
+            background: #f59e0b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.7);
+            animation: ai-blink 1s infinite;
+        }
+        @keyframes ai-pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        @keyframes ai-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .ai-status-text {
+            font-weight: 500;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            white-space: nowrap;
+        }
+        .ai-status-text.active {
+            color: #e2e8f0;
+        }
+        .ai-control-btn {
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .ai-control-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .ram-usage-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.4);
+            padding: 3px 8px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .ram-usage-pill b {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+        .ram-sep {
+            color: #444;
+        }
+        .ai-control-btn.btn-stop {
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.4);
+            color: #f87171;
+        }
+        .ai-control-btn.btn-stop:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+        .ai-control-btn.btn-start {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #34d399;
+        }
+        .ai-control-btn.btn-start:hover {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: #10b981;
+            color: #6ee7b7;
+        }
+        .ai-control-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .nexus-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+        }
+        .nexus-summary {
+            background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(56,189,248,0.08));
+            border: 1px solid rgba(167,139,250,0.2);
+            border-radius: 10px;
+            padding: 16px 20px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: var(--text);
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+        .nexus-summary-label {
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #a78bfa;
+            margin-bottom: 8px;
+        }
+        .nexus-stats-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .nexus-stat {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            text-align: center;
+            flex: 1;
+        }
+        .nexus-stat-num {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .nexus-stat-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+        .nexus-folder-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .nexus-folder-item {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            transition: border-color 0.2s;
+        }
+        .nexus-folder-item:hover {
+            border-color: #a78bfa;
+        }
+        .nexus-folder-item.has-issues {
+            border-left: 3px solid var(--accent2);
+        }
+        .nexus-folder-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+        .nexus-folder-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+        .nexus-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+        }
+        .nexus-tag-ext {
+            background: rgba(56,189,248,0.15);
+            color: #38bdf8;
+        }
+        .nexus-tag-missing {
+            background: rgba(255,77,109,0.15);
+            color: var(--accent2);
+        }
+        .nexus-tag-ok {
+            background: rgba(53,208,127,0.15);
+            color: #35d07f;
+        }
+        .nexus-redownload-btn {
+            background: rgba(232, 197, 71, 0.15);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .nexus-redownload-btn:hover {
+            background: var(--accent);
+            color: #000;
+            transform: translateY(-1px);
+        }
+        .nexus-redownload-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .nexus-filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .nexus-filter-btn {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nexus-filter-btn.active {
+            border-color: #a78bfa;
+            color: #a78bfa;
+            background: rgba(167,139,250,0.1);
+        }
+        .nexus-ai-sidebar-btn {
+            width: 100%;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, rgba(167,139,250,0.12), rgba(56,189,248,0.12));
+            border: 1px solid rgba(167,139,250,0.3);
+            border-radius: 6px;
+            color: #a78bfa;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.83rem;
+            cursor: pointer;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+        .nexus-ai-sidebar-btn:hover {
+            border-color: #a78bfa;
+            background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(56,189,248,0.2));
+            color: #c4b5fd;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="pinOverlay">
+        <div class="pin-container">
+            <h2>Enter Access PIN</h2>
+            <input type="password" id="pinInput" maxlength="4" placeholder="••••" autofocus>
+            <div id="pinMsg" class="pin-msg"></div>
+        </div>
+    </div>
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h1>Comic Nexus</h1>
+            <p>Your Collection</p>
+        </div>
+
+        <div class="search-wrap">
+            <input type="text" id="searchInput" class="search-bar" placeholder="Search title or artist…">
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-label">Collections</div>
+            <div id="catList"></div>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="../trainer.html" target="_blank" rel="noopener noreferrer" class="bookmark-filter-btn"
+                style="text-decoration: none; color: var(--accent2); border-color: var(--accent2); background: rgba(255, 77, 109, 0.08); text-align: center; justify-content: center; margin-bottom: 10px;">
+                Trainer Model
+            </a>
+            <button class="nexus-ai-sidebar-btn" onclick="openNexusAI()">
+                🧠 &nbsp;Nexus AI
+            </button>
+            <a href="downloader.html" class="bookmark-filter-btn"
+                style="text-decoration: none; color: var(--accent); border-color: var(--accent); background: rgba(232, 197, 71, 0.08); text-align: center; justify-content: center; margin-bottom: 10px;">
+                📥 &nbsp;Web Downloader
+            </a>
+            <button id="bookmarkToggle" class="bookmark-filter-btn" onclick="toggleBm()"
+                style="text-decoration: none; color: var(--accent2); border-color: var(--accent2); background: rgba(255, 77, 109, 0.08); text-align: center; justify-content: center; margin-bottom: 10px;">
+                Bookmarks
+            </button>
+            <div class="stats-txt" id="statsBar">—</div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="main-header">
+            <h2 id="headerLabel" style="margin-right: auto;">All Comics</h2>
+
+            <div class="ai-engine-bar" id="aiEngineBar" title="LM Studio & Server RAM Usage">
+                <div class="ai-status-indicator">
+                    <span class="ai-status-dot stopped" id="aiStatusDot"></span>
+                    <span class="ai-status-text" id="aiStatusText">AI: Stopped</span>
+                </div>
+                <div class="ram-usage-pill" id="ramUsagePill">
+                    <span class="ram-item" title="Comic Viewer Node Server RAM">🖥 Server: <b id="serverRamTxt">--</b></span>
+                    <span class="ram-sep">|</span>
+                    <span class="ram-item" title="LM Studio / Bionic RAM">🧠 LM Studio: <b id="lmStudioRamTxt">--</b></span>
+                </div>
+                <button class="ai-control-btn btn-start" id="aiControlBtn" onclick="toggleLMStudio()" title="Start LM Studio AI server and load model">⚡ Start AI</button>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-right: 20px; align-items: center;">
+                <select id="genreSelect" class="search-bar"
+                    style="width: 140px; padding: 6px 12px; cursor: pointer; height: 31px;"
+                    onchange="setGenre(this.value)">
+                    <option value="All">All Genres</option>
+                </select>
+                <select id="sortSelect" class="search-bar"
+                    style="width: 140px; padding: 6px 12px; cursor: pointer; height: 31px;"
+                    onchange="currentPage=1; render()">
+                    <option value="recent">Sort by Recent</option>
+                    <option value="az">Sort by A-Z</option>
+                </select>
+            </div>
+
+            <span class="count-badge" id="countBadge">—</span>
+        </div>
+        <div class="grid-scroll">
+            <div class="comic-grid" id="comicGrid">
+                <div class="empty-state">
+                    <div class="icon">📚</div>
+                    <p>Loading collection…</p>
+                </div>
+            </div>
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <!-- Nexus AI Modal Overlay -->
+    <div id="nexusOverlay" class="nexus-overlay" onclick="if(event.target===this)closeNexusAI()">
+        <div class="nexus-modal">
+            <div class="nexus-header">
+                <h2>🧠 NEXUS AI — LIBRARY HEALTH</h2>
+                <div class="nexus-header-actions">
+                    <button class="nexus-refresh-btn" onclick="refreshNexusAI()">⟳ Refresh</button>
+                    <button class="nexus-close-btn" onclick="closeNexusAI()">✕ Close</button>
+                </div>
+            </div>
+            <div class="nexus-body" id="nexusBody">
+                <div style="text-align:center;padding:40px;color:var(--text-muted)">Click to load analysis...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allComics = [];
+        let currentCat = 'All';
+        let currentGenre = 'All';
+        let currentPage = 1;
+        let showBm = false;
+        const itemsPerPage = 60;
+
+        function toTitleCase(str) {
+            if (!str) return str;
+            return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+        }
+
+        function normalizeComicInfo(info) {
+            const category = info.category && info.category.trim() ? info.category : info.artist;
+            const artist = info.artist && info.artist.trim() ? info.artist : category;
+            return {
+                ...info,
+                category: category || 'Uncategorized',
+                artist: artist || category || 'Unknown'
+            };
+        }
+
+        function parseName(name) {
+            // Try 1: Matches [Category (Artist)] Title OR [Category] Title
+            let m = name.match(/^\[(.*?)(?:\s\((.*?)\))?\]\s*(.*)/);
+
+            if (m) {
+                return normalizeComicInfo({
+                    category: m[1] ? toTitleCase(m[1].trim()) : 'Uncategorized',
+                    artist: m[2] ? toTitleCase(m[2].trim()) : '',
+                    title: m[3] ? m[3].trim() : name,
+                    original: name
+                });
+            }
+
+            // Try 2: Matches Title [Category (Artist)] OR Title [Category]
+            m = name.match(/^(.*?)\s*\[(.*?)(?:\s\((.*?)\))?\]$/);
+            if (m) {
+                return normalizeComicInfo({
+                    title: m[1] ? m[1].trim() : name,
+                    category: m[2] ? toTitleCase(m[2].trim()) : 'Uncategorized',
+                    artist: m[3] ? toTitleCase(m[3].trim()) : '',
+                    original: name
+                });
+            }
+
+            // Fallback
+            return { category: 'Uncategorized', artist: 'Unknown', title: name, original: name };
+        }
+
+        async function init() {
+            try {
+                const res = await fetch('http://localhost:3001/api/comics');
+                const data = await res.json();
+                allComics = data.map(item => {
+                    const parsed = parseName(item.name);
+                    return {
+                        ...parsed,
+                        category: parsed.category || 'Uncategorized',
+                        thumbnail: item.thumbnail,
+                        genres: item.genres || [],
+                        mtime: item.mtime || 0
+                    };
+                });
+                buildSidebar();
+                buildGenresDropdown();
+                render();
+            } catch (e) {
+                document.getElementById('comicGrid').innerHTML = `
+                <div class="empty-state">
+                    <div class="icon">⚠️</div>
+                    <p>Cannot connect to server.<br>Make sure the Express server is running on port 3001.</p>
+                </div>`;
+            }
+        }
+
+        function buildSidebar() {
+            const cats = ['All', ...new Set(allComics.map(c => c.category))];
+
+            let html = cats.map(cat => {
+                const n = cat === 'All' ? allComics.length : allComics.filter(c => c.category === cat).length;
+                const activeCls = (cat === currentCat) ? 'active' : '';
+                return `<div class="cat-item ${activeCls}" onclick="setCat('${cat}')">
+                <span>${cat}</span><span class="cat-count">${n}</span>
+            </div>`;
+            }).join('');
+
+            document.getElementById('catList').innerHTML = html;
+            document.getElementById('statsBar').textContent = `${allComics.length} comics · ${cats.length - 1} categories`;
+        }
+
+        function buildGenresDropdown() {
+            const genresSet = new Set();
+            allComics.forEach(c => {
+                if (c.genres && c.genres.length > 0) {
+                    c.genres.forEach(g => genresSet.add(g));
+                }
+            });
+            const genresArray = Array.from(genresSet).sort();
+
+            let html = `<option value="All">All Genres</option>`;
+            genresArray.forEach(g => {
+                html += `<option value="${g}">${g}</option>`;
+            });
+            document.getElementById('genreSelect').innerHTML = html;
+        }
+
+        function setGenre(g) {
+            currentGenre = g;
+            currentPage = 1;
+            render();
+        }
+
+        function getFiltered() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const bms = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+
+            let filtered = allComics.filter(c => {
+                const searchMatch = (!q || c.title.toLowerCase().includes(q) || c.artist.toLowerCase().includes(q));
+                const catMatch = (currentCat === 'All' || c.category === currentCat);
+                const genreMatch = (currentGenre === 'All' || (c.genres && c.genres.includes(currentGenre)));
+                const bookmarkMatch = (!showBm || bms.includes(c.original));
+
+                return searchMatch && catMatch && genreMatch && bookmarkMatch;
+            });
+
+            const sortVal = document.getElementById('sortSelect').value;
+            if (sortVal === 'recent') {
+                filtered.sort((a, b) => b.mtime - a.mtime);
+            } else {
+                filtered.sort((a, b) => a.title.localeCompare(b.title));
+            }
+
+            return filtered;
+        }
+
+        function render() {
+            const filtered = getFiltered();
+            const bms = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+            document.getElementById('countBadge').textContent = `${filtered.length} title${filtered.length !== 1 ? 's' : ''}`;
+            document.getElementById('headerLabel').textContent = currentCat === 'All' ? 'All Comics' : currentCat;
+
+            const pagContainer = document.getElementById('pagination');
+
+            if (!filtered.length) {
+                document.getElementById('comicGrid').innerHTML = `<div class="empty-state"><div class="icon">🔍</div><p>No comics match your filter.</p></div>`;
+                if (pagContainer) pagContainer.innerHTML = '';
+                return;
+            }
+
+            const totalPages = Math.ceil(filtered.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+            const startIdx = (currentPage - 1) * itemsPerPage;
+            const paginated = filtered.slice(startIdx, startIdx + itemsPerPage);
+
+            document.getElementById('comicGrid').innerHTML = paginated.map(c => {
+                const bm = bms.includes(c.original);
+                const url = `reader.html?comic=${encodeURIComponent(c.original)}`;
+                const thumb = c.thumbnail
+                    ? `http://localhost:3001/images/${encodeURIComponent(c.original)}/${encodeURIComponent(c.thumbnail)}`
+                    : '';
+                return `
+            <div class="comic-card ${bm ? 'bookmarked' : ''}">
+                <div class="card-thumb">
+                    <a href="${url}" target="_blank" style="display:block; width:100%; height:100%;">
+                        ${thumb ? `<img src="${thumb}" loading="lazy" alt="${c.title}">` : '<div style="width:100%;height:100%;background:#111;"></div>'}
+                        <div class="card-overlay"><span class="open-label">Open ↗</span></div>
+                    </a>
+                    <button class="bm-btn" onclick="toggleComicBookmark(event, '${c.original.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')" title="Bookmark">♥</button>
+                </div>
+                <a href="${url}" target="_blank" class="card-info" style="display:block; color:inherit; text-decoration:none;">
+                    <div class="card-artist">${c.artist}</div>
+                    <div class="card-title">${c.title}</div>
+                    <span class="card-cat">${c.category}</span>
+                </a>
+            </div>`;
+            }).join('');
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const pagContainer = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                pagContainer.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">← Prev</button>`;
+
+            let startP = Math.max(1, currentPage - 2);
+            let endP = Math.min(totalPages, currentPage + 2);
+
+            if (startP > 1) {
+                html += `<button class="page-btn" onclick="changePage(1)">1</button>`;
+                if (startP > 2) html += `<span style="align-self: flex-end; color: var(--text-muted);">&hellip;</span>`;
+            }
+
+            for (let i = startP; i <= endP; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+
+            if (endP < totalPages) {
+                if (endP < totalPages - 1) html += `<span style="align-self: flex-end; color: var(--text-muted);">&hellip;</span>`;
+                html += `<button class="page-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+            }
+
+            html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Next →</button>`;
+
+            pagContainer.innerHTML = html;
+        }
+
+        function changePage(p) {
+            if (p < 1) return;
+            currentPage = p;
+            render();
+            document.querySelector('.grid-scroll').scrollTop = 0;
+        }
+
+        function toggleComicBookmark(event, original) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            let bms = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+            const isBookmarked = bms.includes(original);
+
+            if (isBookmarked) {
+                bms = bms.filter(b => b !== original);
+            } else {
+                bms.push(original);
+            }
+
+            localStorage.setItem('bookmarks', JSON.stringify(bms));
+
+            // Instantly visually toggle the CSS class on the card
+            const card = event.currentTarget.closest('.comic-card');
+            if (card) {
+                card.classList.toggle('bookmarked', !isBookmarked);
+            }
+            if (showBm) render();
+        }
+
+        function setCat(cat) {
+            currentCat = cat;
+            currentPage = 1;
+            buildSidebar();
+            render();
+        }
+
+        function toggleBm() {
+            showBm = !showBm;
+            document.getElementById('bookmarkToggle').classList.toggle('active', showBm);
+            render();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            currentPage = 1;
+            render();
+        });
+        async function checkPinSession() {
+            const overlay = document.getElementById('pinOverlay');
+
+            try {
+                // 1. Ask the server for its current Instance ID
+                const res = await fetch('http://localhost:3001/api/server-status');
+                const { instanceId } = await res.json();
+
+                // 2. Get the ID we have stored in the browser
+                const storedId = localStorage.getItem('nexus_server_instance');
+
+                // 3. If they match, the server hasn't restarted since we last logged in
+                if (storedId === instanceId) {
+                    overlay.style.display = 'none';
+                } else {
+                    // Server restarted! Clear old login and show PIN
+                    localStorage.removeItem('nexus_server_instance');
+                    setupPinListener(instanceId);
+                }
+            } catch (e) {
+                console.error("Connection failed", e);
+            }
+        }
+
+        function setupPinListener(currentServerId) {
+            const input = document.getElementById('pinInput');
+            const msg = document.getElementById('pinMsg');
+            const overlay = document.getElementById('pinOverlay');
+
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 4) {
+                    if (e.target.value === "8580") {
+                        // Store the SPECIFIC server instance ID
+                        localStorage.setItem('nexus_server_instance', currentServerId);
+
+                        overlay.style.opacity = '0';
+                        setTimeout(() => overlay.style.display = 'none', 300);
+                    } else {
+                        msg.textContent = "Incorrect PIN.";
+                        e.target.value = '';
+                    }
+                }
+            });
+        }
+
+        // Start the check
+        checkPinSession();
+        init();
+
+        // ── Nexus AI Panel ──
+        let nexusData = null;
+        let nexusFilter = 'issues'; // 'issues' or 'all'
+
+        async function openNexusAI() {
+            const overlay = document.getElementById('nexusOverlay');
+            overlay.classList.add('open');
+            document.getElementById('nexusBody').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">Loading analysis...</div>';
+
+            try {
+                const res = await fetch('http://localhost:3001/api/nexus-analysis');
+                nexusData = await res.json();
+                renderNexusPanel();
+            } catch (e) {
+                document.getElementById('nexusBody').innerHTML = '<div style="text-align:center;padding:40px;color:var(--accent2)">Failed to load analysis. Is the server running?</div>';
+            }
+        }
+
+        function closeNexusAI() {
+            document.getElementById('nexusOverlay').classList.remove('open');
+        }
+
+        async function refreshNexusAI() {
+            document.getElementById('nexusBody').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">🧠 Running analysis... This may take a moment.</div>';
+            try {
+                await fetch('http://localhost:3001/api/nexus-analysis/refresh', { method: 'POST' });
+                // Wait a bit for the analysis to complete
+                await new Promise(r => setTimeout(r, 3000));
+                const res = await fetch('http://localhost:3001/api/nexus-analysis');
+                nexusData = await res.json();
+                renderNexusPanel();
+            } catch (e) {
+                document.getElementById('nexusBody').innerHTML = '<div style="text-align:center;padding:40px;color:var(--accent2)">Refresh failed.</div>';
+            }
+        }
+
+        function setNexusFilter(f) {
+            nexusFilter = f;
+            renderNexusPanel();
+        }
+
+        function renderNexusPanel() {
+            if (!nexusData) return;
+
+            const results = nexusData.results || [];
+            const issuesFolders = results.filter(r => r.hasIssues);
+            const cleanFolders = results.filter(r => !r.hasIssues);
+            const displayList = nexusFilter === 'issues' ? issuesFolders : results;
+
+            let lastTime = '';
+            if (nexusData.lastAnalyzed) {
+                const d = new Date(nexusData.lastAnalyzed);
+                lastTime = d.toLocaleTimeString();
+            }
+
+            let html = '';
+
+            // Stats bar
+            html += `<div class="nexus-stats-bar">`;
+            html += `<div class="nexus-stat"><div class="nexus-stat-num">\${results.length}</div><div class="nexus-stat-label">Total Folders</div></div>`;
+            html += `<div class="nexus-stat"><div class="nexus-stat-num" style="color:var(--accent2)">\${issuesFolders.length}</div><div class="nexus-stat-label">With Issues</div></div>`;
+            html += `<div class="nexus-stat"><div class="nexus-stat-num" style="color:#35d07f">\${cleanFolders.length}</div><div class="nexus-stat-label">Clean</div></div>`;
+            
+            if (nexusData.usage !== undefined && nexusData.usage !== null) {
+                const usageStr = '$' + Number(nexusData.usage).toFixed(4);
+                html += `<div class="nexus-stat"><div class="nexus-stat-num" style="color:#38bdf8;font-size:1.1rem">\${usageStr}</div><div class="nexus-stat-label">API Usage</div></div>`;
+            }
+            
+            html += `<div class="nexus-stat"><div class="nexus-stat-num" style="color:#a78bfa;font-size:0.85rem">\${lastTime || 'Never'}</div><div class="nexus-stat-label">Last Scan</div></div>`;
+            html += `</div>`;
+
+            // AI Summary
+            if (nexusData.summary) {
+                html += `<div class="nexus-summary-label">🧠 AI Summary (${nexusData.model || 'unknown'})</div>`;
+                html += `<div class="nexus-summary">${escapeHtml(nexusData.summary)}</div>`;
+            }
+
+            // Filter buttons
+            html += `<div class="nexus-filter-bar">`;
+            html += `<button class="nexus-filter-btn ${nexusFilter === 'issues' ? 'active' : ''}" onclick="setNexusFilter('issues')">Issues Only (${issuesFolders.length})</button>`;
+            html += `<button class="nexus-filter-btn ${nexusFilter === 'all' ? 'active' : ''}" onclick="setNexusFilter('all')">All Folders (${results.length})</button>`;
+            html += `</div>`;
+
+            // Folder list
+            html += `<div class="nexus-folder-list">`;
+            for (const f of displayList) {
+                const issueClass = f.hasIssues ? 'has-issues' : '';
+                html += `<div class="nexus-folder-item ${issueClass}">`;
+                html += `<div class="nexus-folder-name">${escapeHtml(f.folder)}</div>`;
+                html += `<div class="nexus-folder-meta">`;
+                html += `<span>${f.totalImages} images</span>`;
+
+                // Extension tags
+                if (f.extensions) {
+                    for (const [ext, count] of Object.entries(f.extensions)) {
+                        html += `<span class="nexus-tag nexus-tag-ext">.${ext}: ${count}</span>`;
+                    }
+                }
+
+                // Missing numbers
+                if (f.missingNumbers && f.missingNumbers.length > 0) {
+                    const nums = f.missingNumbers.length > 10
+                        ? f.missingNumbers.slice(0, 10).join(', ') + ` ...+${f.missingNumbers.length - 10} more`
+                        : f.missingNumbers.join(', ');
+                    html += `<span class="nexus-tag nexus-tag-missing">Missing: ${nums}</span>`;
+                } else if (f.totalImages > 0) {
+                    html += `<span class="nexus-tag nexus-tag-ok">Complete</span>`;
+                }
+
+                if (f.downloaderUrl) {
+                    html += `<span class="nexus-tag nexus-tag-ext" title="${escapeHtml(f.downloaderUrl)}">🔗 Source URL saved</span>`;
+                    if (f.missingNumbers && f.missingNumbers.length > 0) {
+                        html += `<button class="nexus-redownload-btn" onclick="redownloadMissing('${escapeHtml(f.folder)}', '${escapeHtml(f.downloaderUrl)}', this)" title="Re-download missing pages using stored source URL">⬇️ Re-Download Missing (${f.missingNumbers.length})</button>`;
+                    }
+                }
+
+                html += `</div></div>`;
+            }
+            html += `</div>`;
+
+            if (displayList.length === 0) {
+                html += `<div style="text-align:center;padding:30px;color:var(--text-muted)">No folders match this filter.</div>`;
+            }
+
+            document.getElementById('nexusBody').innerHTML = html;
+        }
+
+        async function redownloadMissing(folder, url, btn) {
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Starting...';
+            }
+            try {
+                const res = await fetch('http://localhost:3001/api/redownload-missing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ folder, downloaderUrl: url })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    btn.innerHTML = '✓ Download Started';
+                    btn.style.background = '#10b981';
+                    btn.style.color = '#fff';
+                    btn.style.borderColor = '#10b981';
+                } else {
+                    btn.innerHTML = '✖ Failed';
+                    alert(data.error || 'Failed to start download');
+                }
+            } catch (e) {
+                console.error('Redownload request failed:', e);
+                if (btn) btn.innerHTML = '✖ Error';
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ── LM Studio AI Controller ──
+        let currentLMStudioState = { running: false, isStarting: false };
+
+        async function checkLMStudioStatus() {
+            try {
+                const res = await fetch('http://localhost:3001/api/lmstudio/status');
+                if (!res.ok) return;
+                const data = await res.json();
+                currentLMStudioState = data;
+                updateLMStudioUI(data);
+            } catch (e) {
+                console.warn('Could not check LM Studio status:', e);
+            }
+        }
+
+        function updateLMStudioUI(data) {
+            const dot = document.getElementById('aiStatusDot');
+            const txt = document.getElementById('aiStatusText');
+            const btn = document.getElementById('aiControlBtn');
+            const sRam = document.getElementById('serverRamTxt');
+            const lmRam = document.getElementById('lmStudioRamTxt');
+
+            if (data.memory) {
+                if (sRam) sRam.textContent = data.memory.serverFormatted || '--';
+                if (lmRam) {
+                    lmRam.textContent = data.running ? data.memory.lmStudioFormatted : '0 MB (Off)';
+                    lmRam.style.color = data.running ? '#38bdf8' : '#888';
+                }
+            }
+
+            if (!dot || !txt || !btn) return;
+
+            if (data.isStarting) {
+                dot.className = 'ai-status-dot busy';
+                txt.className = 'ai-status-text';
+                txt.textContent = 'AI: Starting...';
+                btn.disabled = true;
+                btn.className = 'ai-control-btn';
+                btn.textContent = '⏳ Booting...';
+            } else if (data.running) {
+                dot.className = 'ai-status-dot active';
+                txt.className = 'ai-status-text active';
+                const modelName = data.loadedModel ? data.loadedModel.split('-')[0].toUpperCase() : 'Ready';
+                txt.textContent = `AI: Ready (${modelName})`;
+                btn.disabled = false;
+                btn.className = 'ai-control-btn btn-stop';
+                btn.textContent = '🛑 Stop & Free RAM';
+                btn.title = 'Unload model and stop LM Studio (Bionic) to free all GPU and RAM';
+            } else {
+                dot.className = 'ai-status-dot stopped';
+                txt.className = 'ai-status-text';
+                txt.textContent = 'AI: Stopped';
+                btn.disabled = false;
+                btn.className = 'ai-control-btn btn-start';
+                btn.textContent = '⚡ Start AI';
+                btn.title = 'Start LM Studio and load translation model';
+            }
+        }
+
+        async function toggleLMStudio() {
+            const btn = document.getElementById('aiControlBtn');
+            const dot = document.getElementById('aiStatusDot');
+            const txt = document.getElementById('aiStatusText');
+
+            if (currentLMStudioState.running) {
+                // Stop LM Studio
+                btn.disabled = true;
+                dot.className = 'ai-status-dot busy';
+                txt.textContent = 'Stopping & Freeing RAM...';
+                btn.textContent = '⏳ Stopping...';
+                try {
+                    const res = await fetch('http://localhost:3001/api/lmstudio/stop', { method: 'POST' });
+                    await res.json();
+                } catch (e) {
+                    console.error('Failed to stop LM Studio:', e);
+                }
+                await checkLMStudioStatus();
+            } else {
+                // Start LM Studio
+                btn.disabled = true;
+                dot.className = 'ai-status-dot busy';
+                txt.textContent = 'Booting LM Studio...';
+                btn.textContent = '⏳ Booting...';
+                try {
+                    const res = await fetch('http://localhost:3001/api/lmstudio/start', { method: 'POST' });
+                    await res.json();
+                } catch (e) {
+                    console.error('Failed to start LM Studio:', e);
+                }
+                await checkLMStudioStatus();
+            }
+        }
+
+        // Initial check and periodic polling every 8s
+        checkLMStudioStatus();
+        setInterval(checkLMStudioStatus, 8000);
+    </script>
+    <script>
+        // Auto-Reload logic: Detect server restart and hard refresh, or ping server so it knows we exist
+        (function() {
+            let lastStartTime = null;
+            let serverWasDown = false;
+            setInterval(async () => {
+                try {
+                    const res = await fetch('/api/ping');
+                    const data = await res.json();
+                    if (serverWasDown || (lastStartTime && lastStartTime !== data.startTime)) {
+                        // Server restarted! Hard refresh!
+                        location.reload(true);
+                    }
+                    lastStartTime = data.startTime;
+                    serverWasDown = false;
+                } catch (e) {
+                    serverWasDown = true;
+                }
+            }, 2000);
+        })();
+    </script>
+</body>
+
+</html>

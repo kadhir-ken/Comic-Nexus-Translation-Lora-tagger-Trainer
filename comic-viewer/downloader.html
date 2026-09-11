@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comic Downloader</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --surface2: #1e1e1e;
+            --border: #2a2a2a;
+            --accent: #e8c547;
+            --text: #e8e8e8;
+            --text-muted: #888;
+            --success: #35d07f;
+            --error: #ff4d6d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(360px, 600px) minmax(280px, 360px);
+            gap: 20px;
+            width: 100%;
+            max-width: 980px;
+        }
+
+        .container,
+        .bookmark-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .bookmark-panel {
+            padding: 24px;
+        }
+
+        h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            color: var(--accent);
+            font-size: 2rem;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+            min-width: 0;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        input[type="file"] {
+            width: 100%;
+            flex: none;
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            background: var(--accent);
+            color: #000;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            background: var(--border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .console,
+        .queue-list {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .console {
+            height: 300px;
+            color: #0f0;
+        }
+
+        .queue-list {
+            min-height: 220px;
+            max-height: 360px;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            gap: 8px;
+        }
+
+        .console .error,
+        .queue-item.failed {
+            color: var(--error);
+        }
+
+        .queue-item {
+            overflow-wrap: anywhere;
+            line-height: 1.35;
+        }
+
+        .queue-item.active {
+            color: var(--accent);
+        }
+
+        .queue-item.done {
+            color: var(--success);
+        }
+
+        .panel-note {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .back-link a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 860px) {
+            body {
+                align-items: flex-start;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Command Prompt Styled Progress Dashboard */
+        .dashboard-panel {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            display: none;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .dashboard-preview {
+            width: 75px;
+            height: 100px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        #previewImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-placeholder {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        .dashboard-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .dashboard-title {
+            font-family: monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--accent);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            font-family: monospace;
+            color: var(--text);
+        }
+
+        .cli-progress-bar-container {
+            width: 100%;
+            height: 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .cli-progress-bar {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.1s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <div class="container">
+            <h2>Web Downloader</h2>
+
+            <div class="input-group">
+                <input type="text" id="urlInput" placeholder="Paste comic chapter URL here...">
+                <button id="downloadBtn" onclick="startDownload()">Download</button>
+            </div>
+
+            <!-- Command Prompt Styled Progress Dashboard -->
+            <div id="progressDashboard" class="dashboard-panel">
+                <div class="dashboard-preview">
+                    <img id="previewImage" src="" alt="First Page Preview" style="display: none;">
+                    <div id="previewPlaceholder" class="preview-placeholder">Waiting...</div>
+                </div>
+                <div class="dashboard-info">
+                    <div class="dashboard-title" id="downloadingTitle">Preparing download...</div>
+                    <div class="progress-stats">
+                        <span class="progress-count" id="progressCount">Downloaded: 0 / 0 images</span>
+                        <span class="progress-percent" id="progressPercent">0%</span>
+                    </div>
+                    <div class="cli-progress-bar-container">
+                        <div class="cli-progress-bar" id="cliProgressBar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="console" id="consoleOutput">
+                <div>Waiting for URL...</div>
+            </div>
+
+            <div class="back-link">
+                <a href="index.html">Back to Library</a>
+            </div>
+        </div>
+
+        <div class="bookmark-panel">
+            <h2>Bookmarks</h2>
+            <input type="file" id="bookmarkFile" accept=".html,.htm,text/html">
+            <button id="bookmarkBtn" onclick="startBookmarkDownload()" disabled>Download Bookmarks</button>
+            <div class="panel-note" id="bookmarkStatus">Choose a browser bookmark HTML file.</div>
+            <div class="queue-list" id="bookmarkQueue">
+                <div>No bookmark URLs loaded.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('downloadBtn');
+        const input = document.getElementById('urlInput');
+        const out = document.getElementById('consoleOutput');
+        const bookmarkFile = document.getElementById('bookmarkFile');
+        const bookmarkBtn = document.getElementById('bookmarkBtn');
+        const bookmarkStatus = document.getElementById('bookmarkStatus');
+        const bookmarkQueue = document.getElementById('bookmarkQueue');
+        let bookmarkUrls = [];
+
+        function logToConsole(msg, isError = false) {
+            const div = document.createElement('div');
+            div.textContent = msg;
+            if (isError) div.className = 'error';
+            out.appendChild(div);
+            out.scrollTop = out.scrollHeight;
+        }
+
+        function setControlsDisabled(disabled) {
+            btn.disabled = disabled;
+            input.disabled = disabled;
+            bookmarkFile.disabled = disabled;
+            bookmarkBtn.disabled = disabled || bookmarkUrls.length === 0;
+        }
+
+        let currentFolder = "";
+        let totalImages = 0;
+        let downloadedCount = 0;
+        let isPreviewLoaded = false;
+
+        function resetDashboard() {
+            currentFolder = "";
+            totalImages = 0;
+            downloadedCount = 0;
+            isPreviewLoaded = false;
+            
+            const dashboard = document.getElementById('progressDashboard');
+            dashboard.style.display = 'flex';
+            
+            document.getElementById('downloadingTitle').textContent = 'Preparing download...';
+            document.getElementById('progressCount').textContent = 'Downloaded: 0 / 0 images';
+            document.getElementById('progressPercent').textContent = '0%';
+            document.getElementById('cliProgressBar').style.width = '0%';
+            
+            const previewImg = document.getElementById('previewImage');
+            const previewPlaceholder = document.getElementById('previewPlaceholder');
+            previewImg.style.display = 'none';
+            previewImg.src = '';
+            previewPlaceholder.style.display = 'flex';
+            previewPlaceholder.textContent = 'Waiting...';
+        }
+
+        function attemptLoadPreview(folderName) {
+            if (!folderName || isPreviewLoaded) return;
+            
+            const previewImg = document.getElementById('previewImage');
+            const previewPlaceholder = document.getElementById('previewPlaceholder');
+
+            // List of potential first-image filename conventions
+            const candidates = [
+                '001.jpg', '001.png', '001.webp', '001.gif',
+                '1.jpg', '1.png', '1.webp', '1.gif',
+                '01.jpg', '01.png', '01.webp', '01.gif'
+            ];
+
+            let attemptIndex = 0;
+
+            function tryNextCandidate() {
+                if (attemptIndex >= candidates.length) {
+                    // All candidates failed, keep showing placeholder
+                    previewImg.style.display = 'none';
+                    previewPlaceholder.style.display = 'flex';
+                    previewPlaceholder.textContent = 'No Preview';
+                    return;
+                }
+
+                const filename = candidates[attemptIndex];
+                const url = `http://localhost:3001/images/${encodeURIComponent(folderName)}/${filename}`;
+                
+                const img = new Image();
+                img.onload = () => {
+                    previewImg.src = url;
+                    previewImg.style.display = 'block';
+                    previewPlaceholder.style.display = 'none';
+                    isPreviewLoaded = true;
+                };
+                img.onerror = () => {
+                    attemptIndex++;
+                    tryNextCandidate();
+                };
+                img.src = url;
+            }
+
+            tryNextCandidate();
+        }
+
+        function updateDashboard(message) {
+            // 1. Detect Destination Folder
+            const folderMatch = message.match(/(?:📂\s*)?Destination Folder:\s*(.+)/i);
+            if (folderMatch) {
+                currentFolder = folderMatch[1].trim();
+                document.getElementById('downloadingTitle').textContent = `Folder: ${currentFolder}`;
+                attemptLoadPreview(currentFolder);
+            }
+
+            // 2. Detect Total Images
+            const totalMatch = message.match(/(?:📸\s*)?Found\s+(\d+)\s+images/i);
+            if (totalMatch) {
+                totalImages = parseInt(totalMatch[1], 10);
+                document.getElementById('progressCount').textContent = `Downloaded: 0 / ${totalImages} images`;
+            }
+
+            // 3. Detect Progress (e.g. "Progress: 5/20" or "✅ Progress: 5/20")
+            const progressMatch = message.match(/(?:✅\s*)?Progress:\s*(\d+)\s*\/\s*(\d+)/i);
+            if (progressMatch) {
+                const current = parseInt(progressMatch[1], 10);
+                const total = parseInt(progressMatch[2], 10);
+                totalImages = total;
+                downloadedCount = current;
+                
+                const percent = Math.min(Math.round((current / total) * 100), 100);
+                
+                document.getElementById('progressCount').textContent = `Downloaded: ${current} / ${total} images`;
+                document.getElementById('progressPercent').textContent = `${percent}%`;
+                document.getElementById('cliProgressBar').style.width = `${percent}%`;
+
+                // If preview isn't loaded yet, try loading it again (since the first file is now guaranteed to exist)
+                if (current >= 1 && !isPreviewLoaded) {
+                    attemptLoadPreview(currentFolder);
+                }
+            }
+        }
+
+        function downloadUrl(url) {
+            resetDashboard();
+            return new Promise((resolve) => {
+                let sawError = false;
+                const errors = [];
+                const evtSource = new EventSource(`http://localhost:3001/api/download?url=${encodeURIComponent(url)}`);
+
+                evtSource.onmessage = (e) => {
+                    const data = JSON.parse(e.data);
+
+                    if (data.type === 'log') {
+                        logToConsole(data.message);
+                        updateDashboard(data.message);
+                    } else if (data.type === 'error') {
+                        sawError = true;
+                        errors.push(data.message);
+                        logToConsole(data.message, true);
+                    } else if (data.type === 'done') {
+                        logToConsole(`Process exited with code ${data.code}`);
+                        evtSource.close();
+                        resolve({
+                            ok: data.code === 0 && !sawError,
+                            code: data.code,
+                            errors
+                        });
+                    }
+                };
+
+                evtSource.onerror = () => {
+                    const message = 'Connection to server lost.';
+                    sawError = true;
+                    errors.push(message);
+                    logToConsole(message, true);
+                    evtSource.close();
+                    resolve({ ok: false, code: null, errors });
+                };
+            });
+        }
+
+        async function startDownload() {
+            const url = input.value.trim();
+            if (!url) return alert('Please enter a URL');
+
+            setControlsDisabled(true);
+            out.innerHTML = '';
+            logToConsole(`Connecting to server to download: ${url}...`);
+            await downloadUrl(url);
+            setControlsDisabled(false);
+            input.value = '';
+        }
+
+        function renderBookmarkQueue(activeIndex = -1, results = {}) {
+            bookmarkQueue.innerHTML = '';
+
+            if (bookmarkUrls.length === 0) {
+                bookmarkQueue.innerHTML = '<div>No bookmark URLs loaded.</div>';
+                return;
+            }
+
+            bookmarkUrls.forEach((url, index) => {
+                const div = document.createElement('div');
+                div.className = 'queue-item';
+                if (index === activeIndex) div.classList.add('active');
+                if (results[index] === 'done') div.classList.add('done');
+                if (results[index] === 'failed') div.classList.add('failed');
+                div.textContent = `${index + 1}. ${url}`;
+                bookmarkQueue.appendChild(div);
+            });
+        }
+
+        function extractBookmarkUrls(html) {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const urls = Array.from(doc.querySelectorAll('a[href]'))
+                .map(link => link.href)
+                .filter(url => /^https?:\/\//i.test(url));
+
+            return Array.from(new Set(urls));
+        }
+
+        bookmarkFile.addEventListener('change', async () => {
+            const file = bookmarkFile.files[0];
+            bookmarkUrls = [];
+            bookmarkBtn.disabled = true;
+            renderBookmarkQueue();
+
+            if (!file) {
+                bookmarkStatus.textContent = 'Choose a browser bookmark HTML file.';
+                return;
+            }
+
+            const html = await file.text();
+            bookmarkUrls = extractBookmarkUrls(html);
+            bookmarkStatus.textContent = `Loaded ${bookmarkUrls.length} URL${bookmarkUrls.length === 1 ? '' : 's'} from ${file.name}.`;
+            bookmarkBtn.disabled = bookmarkUrls.length === 0;
+            renderBookmarkQueue();
+        });
+
+        async function startBookmarkDownload() {
+            if (bookmarkUrls.length === 0) return alert('No bookmark URLs found.');
+
+            const results = {};
+            const failures = [];
+            setControlsDisabled(true);
+            out.innerHTML = '';
+            logToConsole(`Starting bookmark batch: ${bookmarkUrls.length} URL(s).`);
+
+            for (let i = 0; i < bookmarkUrls.length; i++) {
+                const url = bookmarkUrls[i];
+                renderBookmarkQueue(i, results);
+                logToConsole('');
+                logToConsole(`[${i + 1}/${bookmarkUrls.length}] Downloading: ${url}`);
+                const result = await downloadUrl(url);
+
+                if (result.ok) {
+                    results[i] = 'done';
+                } else {
+                    results[i] = 'failed';
+                    failures.push({ url, errors: result.errors });
+                    logToConsole('Stopped this URL because it had an error. Continuing with next URL.', true);
+                }
+            }
+
+            renderBookmarkQueue(-1, results);
+            setControlsDisabled(false);
+            bookmarkStatus.textContent = `Batch finished. ${bookmarkUrls.length - failures.length} succeeded, ${failures.length} failed.`;
+            logToConsole('');
+            logToConsole(`Bookmark batch complete. Failed URL count: ${failures.length}`);
+
+            failures.forEach((failure, index) => {
+                logToConsole(`Failed ${index + 1}: ${failure.url}`, true);
+                failure.errors.forEach(error => logToConsole(`  ${error}`, true));
+            });
+        }
+    </script>
+</body>
+
+</html>

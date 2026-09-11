@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reader — Comic Nexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #141414;
+            --surface2: #1e1e1e;
+            --border: #2a2a2a;
+            --accent: #e8c547;
+            --accent2: #ff4d6d;
+            --text: #e8e8e8;
+            --text-muted: #888;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(20, 20, 20, 0.93);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 13px 26px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            padding: 7px 13px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .header-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .header-artist {
+            font-size: 0.67rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 2px;
+        }
+
+        .header-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 1.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1;
+        }
+
+        .header-cat {
+            font-size: 0.67rem;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 2px 8px;
+            border-radius: 3px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .bm-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .bm-btn:hover {
+            border-color: var(--accent2);
+            color: var(--accent2);
+        }
+
+        .bm-btn.active {
+            background: rgba(255, 77, 109, 0.12);
+            border-color: var(--accent2);
+            color: var(--accent2);
+        }
+
+        .explorer-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .explorer-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(232, 197, 71, 0.08);
+        }
+
+        .dataset-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .dataset-btn:hover {
+            border-color: var(--ok, #35d07f);
+            color: var(--ok, #35d07f);
+            background: rgba(53, 208, 127, 0.08);
+        }
+
+        .view-controls {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 9px 26px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .view-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .view-btns {
+            display: flex;
+            gap: 4px;
+        }
+
+        .view-opt {
+            padding: 5px 13px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.77rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .view-opt:hover {
+            border-color: #555;
+            color: var(--text);
+        }
+
+        .view-opt.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .page-count {
+            margin-left: auto;
+            font-size: 0.74rem;
+            color: var(--text-muted);
+        }
+
+        .reader-body {
+            padding: 22px 26px 60px;
+        }
+
+        .reader-body.mode-single {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .reader-body.mode-single img {
+            width: 100%;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .reader-body.mode-double {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .reader-body.mode-double img {
+            width: 100%;
+            display: block;
+        }
+
+        .reader-body.mode-wide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reader-body.mode-wide img {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        img {
+            border-radius: 2px;
+        }
+
+        .status-msg {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+        }
+
+        .status-msg .icon {
+            font-size: 2.5rem;
+            margin-bottom: 14px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            border-radius: 6px;
+            border: 3px solid var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+
+        .related-chapters {
+            max-width: 1300px;
+            margin: 0 auto 60px;
+            padding: 0 26px;
+        }
+
+        .related-chapters h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .rel-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rel-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .rel-thumb {
+            width: 100%;
+            aspect-ratio: 1/1.4;
+            object-fit: cover;
+            display: block;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rel-title {
+            padding: 10px;
+            font-size: 0.75rem;
+            line-height: 1.3;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        /* ── Image Translation Overlays ── */
+        .translate-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(20, 20, 20, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .translate-btn:hover {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+        .translate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .translation-box {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.96);
+            color: #111;
+            border: 1.5px solid #222;
+            border-radius: 8px;
+            padding: 3px 6px;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', 'Nirmala UI', 'Latha', 'Vijaya', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.25;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+            z-index: 5;
+            overflow: hidden;
+            word-wrap: break-word;
+            resize: both; /* Allow resizing */
+            cursor: move; /* Indicate draggable */
+            box-sizing: border-box;
+        }
+        
+        .translation-box:focus {
+            outline: 2px dashed var(--accent);
+            cursor: text;
+        }
+
+        /* ── Translation Save & Clear Action Buttons ── */
+        .trans-action-btn {
+            background: rgba(20, 20, 20, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .trans-action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+        .save-trans-btn.unsaved {
+            background: rgba(232, 197, 71, 0.22);
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 14px rgba(232, 197, 71, 0.45);
+            animation: pulseSaveBtn 2s infinite;
+        }
+        .save-trans-btn.saved {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            color: #34d399;
+        }
+        .clear-trans-btn:hover {
+            border-color: #ef4444;
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.2);
+        }
+        @keyframes pulseSaveBtn {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(232, 197, 71, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 18px rgba(232, 197, 71, 0.6); }
+        }
+
+        /* ── Reader AI Controls ── */
+        .ai-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #64748b;
+            display: inline-block;
+        }
+        .ai-status-dot.active {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+            animation: ai-pulse 2s infinite;
+        }
+        @keyframes ai-pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .reader-stop-ai-btn {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #f87171;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.76rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .reader-stop-ai-btn:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+        .reader-stop-ai-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .reader-stop-ai-btn.btn-start {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #34d399;
+        }
+        .reader-stop-ai-btn.btn-start:hover {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: #10b981;
+            color: #6ee7b7;
+        }
+
+        /* ── Translation Progress Card ── */
+        .translation-progress-card {
+            position: absolute;
+            top: 48px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            max-width: 520px;
+            background: rgba(16, 16, 16, 0.96);
+            backdrop-filter: blur(14px);
+            border: 1.5px solid var(--accent);
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 24px rgba(232, 197, 71, 0.25);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            animation: transFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes transFadeIn {
+            from { opacity: 0; transform: translate(-50%, -8px) scale(0.96); }
+            to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+        }
+        .trans-prog-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .trans-prog-title {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .trans-prog-timer {
+            font-family: 'DM Sans', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 600;
+            background: rgba(232, 197, 71, 0.12);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(232, 197, 71, 0.3);
+        }
+        .trans-prog-bar-wrap {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .trans-prog-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #e8c547, #ff4d6d, #a78bfa);
+            border-radius: 10px;
+            transition: width 0.3s ease, background 0.3s;
+            box-shadow: 0 0 12px rgba(232, 197, 71, 0.5);
+        }
+        .trans-prog-bar.done {
+            background: #10b981;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.8);
+        }
+        .trans-prog-bar.error {
+            background: #ef4444;
+            box-shadow: 0 0 14px rgba(239, 68, 68, 0.8);
+        }
+        .trans-prog-status {
+            font-size: 0.77rem;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .trans-prog-status .percent {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div class="top-bar">
+        <a class="back-btn" href="index.html">← Back</a>
+        <div class="header-info">
+            <div class="header-artist" id="dispArtist"></div>
+            <div class="header-title" id="dispTitle">Loading…</div>
+            <span class="header-cat" id="dispCat"></span>
+        </div>
+
+        <div id="readerAiBar" style="display: flex; align-items: center; gap: 8px; margin-right: 15px; background: rgba(20, 20, 20, 0.85); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px;" title="LM Studio & Server RAM Usage">
+            <span class="ai-status-dot stopped" id="readerAiDot"></span>
+            <span style="font-size: 0.78rem; font-weight: 600; color: #888;" id="readerAiText">AI Stopped</span>
+            <div id="readerRamPill" style="font-size: 0.72rem; color: var(--text-muted); display: flex; gap: 6px; background: rgba(0,0,0,0.35); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05);">
+                <span>🖥 <b id="readerServerRam" style="color:#e2e8f0">--</b></span>
+                <span style="color:#555">|</span>
+                <span>🧠 <b id="readerLmRam" style="color:#e2e8f0">--</b></span>
+            </div>
+            <button class="reader-stop-ai-btn btn-start" id="readerStopAiBtn" onclick="toggleLMStudioFromReader()" title="Toggle LM Studio AI server">⚡ Start AI</button>
+        </div>
+        <span id="tokenTracker" style="font-size: 0.8rem; color: #a78bfa; margin-right: 15px; font-weight: 600; display: none; background: rgba(167, 139, 250, 0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(167, 139, 250, 0.3);">⚡ 0 Tokens</span>
+        <button class="bm-btn" id="bmBtn" onclick="toggleBookmark()">★ Bookmark</button>
+        <button class="dataset-btn" id="datasetBtn" onclick="createDatasetFolder()">Create Dataset Folder</button>
+        <button class="explorer-btn" id="explorerBtn" onclick="openInExplorer()" title="Open folder in File Explorer">📁 Show in File Explorer</button>
+    </div>
+
+
+    <div class="view-controls">
+        <span class="view-label">Layout</span>
+        <div class="view-btns">
+            <button class="view-opt" onclick="setMode('wide')" id="btn-wide">Wide</button>
+            <button class="view-opt" onclick="setMode('single')" id="btn-single">Single</button>
+            <button class="view-opt active" onclick="setMode('double')" id="btn-double">Double</button>
+        </div>
+        <span class="page-count" id="pageCount"></span>
+    </div>
+
+    <div class="reader-body mode-double" id="readerBody">
+        <div class="status-msg">
+            <div class="icon">⏳</div>
+            <p>Loading pages…</p>
+        </div>
+    </div>
+
+    <div class="related-chapters" id="relatedChapters" style="display: none;">
+        <h3>More Chapters From Series</h3>
+        <div class="related-grid" id="relatedGrid"></div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const folderName = params.get('comic') || '';
+        let sessionTokens = 0;
+
+        function normalizeComicInfo(info) {
+            const category = info.category && info.category.trim() ? info.category : info.artist;
+            const artist = info.artist && info.artist.trim() ? info.artist : category;
+            return {
+                ...info,
+                category: category || 'Uncategorized',
+                artist: artist || category || 'Unknown'
+            };
+        }
+
+        function parseName(name) {
+            let m = name.match(/^\[(.*?)(?:\s\((.*?)\))?\]\s*(.*)/);
+            if (m) {
+                return normalizeComicInfo({
+                    category: m[1] ? m[1].trim() : '',
+                    artist: m[2] ? m[2].trim() : '',
+                    title: m[3] ? m[3].trim() : name
+                });
+            }
+
+            m = name.match(/^(.*?)\s*\[(.*?)(?:\s\((.*?)\))?\]$/);
+            if (m) {
+                return normalizeComicInfo({
+                    title: m[1] ? m[1].trim() : name,
+                    category: m[2] ? m[2].trim() : '',
+                    artist: m[3] ? m[3].trim() : ''
+                });
+            }
+
+            return { category: 'Uncategorized', artist: 'Unknown', title: name };
+        }
+
+        function updateBmUI() {
+            const bms = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+            const btn = document.getElementById('bmBtn');
+            const on = bms.includes(folderName);
+            btn.classList.toggle('active', on);
+            btn.textContent = on ? '♥ Bookmarked' : '★ Bookmark';
+        }
+
+        function toggleBookmark() {
+            let bms = JSON.parse(localStorage.getItem('bookmarks') || '[]');
+            bms = bms.includes(folderName) ? bms.filter(b => b !== folderName) : [...bms, folderName];
+            localStorage.setItem('bookmarks', JSON.stringify(bms));
+            updateBmUI();
+        }
+
+        function setMode(mode) {
+            document.getElementById('readerBody').className = `reader-body mode-${mode}`;
+            document.querySelectorAll('.view-opt').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${mode}`).classList.add('active');
+        }
+
+        async function openInExplorer() {
+            if (!folderName) return;
+            const btn = document.getElementById('explorerBtn');
+            btn.textContent = '… Opening…';
+            try {
+                await fetch(
+                    `http://localhost:3001/api/open-folder/${encodeURIComponent(folderName)}`,
+                    {
+                        method: 'POST',
+                    }
+                );
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setTimeout(() => {
+                    btn.textContent = '📁 Show in File Explorer';
+                }, 1000);
+            }
+        }
+
+        async function createDatasetFolder() {
+            if (!folderName) return;
+            const info = parseName(folderName);
+            const datasetFolderName = `dataset -${info.artist} ${info.title}`;
+
+            const btn = document.getElementById('datasetBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '… Copying…';
+            try {
+                const res = await fetch(
+                    `http://localhost:3001/api/create-dataset-folder/${encodeURIComponent(datasetFolderName)}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sourceFolder: folderName })
+                    }
+                );
+                if (res.ok) {
+                    const data = await res.json();
+                    btn.textContent = `✔ Copied ${data.copied} files`;
+                    
+                    // Open the trainer with this folder pre-loaded
+                    setTimeout(() => {
+                        window.open(`../trainer.html?folder=${encodeURIComponent(datasetFolderName)}`, '_blank');
+                        btn.textContent = originalText;
+                    }, 800);
+                } else {
+                    btn.textContent = '✖ Error';
+                    setTimeout(() => { btn.textContent = originalText; }, 3000);
+                }
+            } catch (e) {
+                console.error(e);
+                btn.textContent = '✖ Error';
+                setTimeout(() => { btn.textContent = originalText; }, 3000);
+            }
+        }
+
+        async function load() {
+            if (!folderName) {
+                document.getElementById('readerBody').innerHTML = `<div class="status-msg"><div class="icon">⚠️</div><p>No comic specified in URL.</p></div>`;
+                return;
+            }
+
+            const info = parseName(folderName);
+            document.title = `${info.title} — Comic Nexus`;
+            
+            if(document.getElementById('dispArtist')) document.getElementById('dispArtist').textContent = info.artist;
+            if(document.getElementById('dispTitle')) document.getElementById('dispTitle').textContent = info.title;
+            if(document.getElementById('dispCat')) document.getElementById('dispCat').textContent = info.category;
+            
+            updateBmUI();
+
+            try {
+                fetch('http://localhost:3001/api/comics').then(r => r.json()).then(allComics => {
+                    const getWords = (name) => name.toLowerCase().split(/[\s\-\.\[\]\(\)]+/).filter(w => w.length > 2 && w !== 'chapter' && w !== 'part' && !w.match(/^\d+$/));
+                    const wordsA = getWords(folderName);
+                    
+                    const related = allComics.filter(c => {
+                        if (c.name === folderName) return false;
+                        const wordsB = getWords(c.name);
+                        const intersection = wordsA.filter(w => wordsB.includes(w));
+                        return intersection.length >= Math.min(wordsA.length, wordsB.length) * 0.7;
+                    });
+
+                    if (related.length > 0) {
+                        related.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+                        
+                        document.getElementById('relatedChapters').style.display = 'block';
+                        document.getElementById('relatedGrid').innerHTML = related.map(c => `
+                            <a href="reader.html?comic=${encodeURIComponent(c.name)}" class="rel-card">
+                                ${c.thumbnail ? `<img class="rel-thumb" src="http://localhost:3001/images/${encodeURIComponent(c.name)}/${encodeURIComponent(c.thumbnail)}" loading="lazy">` : `<div class="rel-thumb" style="background:#111;"></div>`}
+                                <div class="rel-title">${c.name}</div>
+                            </a>
+                        `).join('');
+                    }
+                }).catch(e => console.log('Could not load related chapters.', e));
+
+                const res = await fetch(`http://localhost:3001/api/comic/${encodeURIComponent(folderName)}`);
+                const images = await res.json();
+                document.getElementById('pageCount').textContent = `${images.length} page${images.length !== 1 ? 's' : ''}`;
+
+                if (!images.length) {
+                    document.getElementById('readerBody').innerHTML = `<div class="status-msg"><div class="icon">📭</div><p>No images found.</p></div>`;
+                    return;
+                }
+
+                document.getElementById('readerBody').innerHTML = images.map(img =>
+                    `<div class="page-container" data-image="${encodeURIComponent(img)}" data-folder="${encodeURIComponent(folderName)}" style="position:relative; display:inline-block; width:100%; max-width:1000px; margin-bottom: 20px;">
+                        <div style="position: absolute; top: 10px; right: 10px; z-index: 10; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+                            <button class="translate-btn" style="position: static;" data-folder="${encodeURIComponent(folderName)}" data-image="${encodeURIComponent(img)}" data-lang="English" onclick="translateImage(this)">
+                                A文 English
+                            </button>
+                            <button class="translate-btn" style="position: static;" data-folder="${encodeURIComponent(folderName)}" data-image="${encodeURIComponent(img)}" data-lang="Tamil" onclick="translateImage(this)">
+                                அ Tamil
+                            </button>
+                            <button class="trans-action-btn save-trans-btn" style="display: none;" data-folder="${encodeURIComponent(folderName)}" data-image="${encodeURIComponent(img)}" onclick="savePageTranslations(this)" title="Save translation and arranged bubble positions to local storage & disk">
+                                💾 Save Page
+                            </button>
+                            <button class="trans-action-btn clear-trans-btn" style="display: none;" data-folder="${encodeURIComponent(folderName)}" data-image="${encodeURIComponent(img)}" onclick="clearPageTranslations(this)" title="Clear translated bubbles on this page">
+                                🗑️ Clear
+                            </button>
+                        </div>
+                        <img src="http://localhost:3001/images/${encodeURIComponent(folderName)}/${encodeURIComponent(img)}" crossorigin="anonymous" loading="lazy" alt="${img}" style="width:100%; height:auto; display:block;" data-filename="${img}">
+                    </div>`
+                ).join('');
+
+                // Auto-restore saved translations from localStorage or server disk
+                restoreSavedTranslations(folderName, images);
+            } catch (e) {
+                document.getElementById('readerBody').innerHTML = `<div class="status-msg"><div class="icon">⚠️</div><p>Cannot load comic.<br>Make sure the Express server is running.</p></div>`;
+            }
+        }
+
+        // ── Translation Progress Bar Creator ──
+        function createTranslationProgressBar(container, targetLang) {
+            container.querySelectorAll('.translation-progress-card').forEach(el => el.remove());
+
+            const card = document.createElement('div');
+            card.className = 'translation-progress-card';
+            card.innerHTML = `
+                <div class="trans-prog-header">
+                    <div class="trans-prog-title">
+                        <span class="trans-prog-spinner">⚡</span>
+                        <span>Translating to ${targetLang}</span>
+                    </div>
+                    <span class="trans-prog-timer">⏱ 0.0s</span>
+                </div>
+                <div class="trans-prog-bar-wrap">
+                    <div class="trans-prog-bar"></div>
+                </div>
+                <div class="trans-prog-status">
+                    <span class="status-msg">Initializing...</span>
+                    <span class="percent">0%</span>
+                </div>
+            `;
+            container.appendChild(card);
+
+            const bar = card.querySelector('.trans-prog-bar');
+            const timerEl = card.querySelector('.trans-prog-timer');
+            const statusEl = card.querySelector('.status-msg');
+            const percentEl = card.querySelector('.percent');
+            const startTime = Date.now();
+
+            const timerInterval = setInterval(() => {
+                const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                timerEl.textContent = `⏱ ${elapsed}s`;
+            }, 100);
+
+            return {
+                setProgress: (pct, msg) => {
+                    bar.style.width = `${pct}%`;
+                    percentEl.textContent = `${pct}%`;
+                    if (msg) statusEl.textContent = msg;
+                },
+                complete: (bubbleCount, totalTokens) => {
+                    clearInterval(timerInterval);
+                    const totalSec = ((Date.now() - startTime) / 1000).toFixed(1);
+                    bar.style.width = '100%';
+                    bar.className = 'trans-prog-bar done';
+                    percentEl.textContent = '100%';
+                    timerEl.textContent = `✓ ${totalSec}s`;
+                    statusEl.textContent = `🎉 Done! ${bubbleCount} bubbles translated in ${totalSec}s (${totalTokens || 0} tokens)`;
+                    setTimeout(() => {
+                        card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translate(-50%, -8px) scale(0.96)';
+                        setTimeout(() => card.remove(), 400);
+                    }, 1800);
+                },
+                error: (errMsg) => {
+                    clearInterval(timerInterval);
+                    bar.className = 'trans-prog-bar error';
+                    bar.style.width = '100%';
+                    percentEl.textContent = 'Failed';
+                    statusEl.textContent = `❌ ${errMsg || 'Translation error'}`;
+                    statusEl.style.color = '#f87171';
+                    setTimeout(() => card.remove(), 5000);
+                }
+            };
+        }
+
+        async function translateImage(btn) {
+            const folder = btn.getAttribute('data-folder');
+            const image = btn.getAttribute('data-image');
+            const language = btn.getAttribute('data-lang');
+            const container = btn.closest('.page-container');
+            
+            btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ In Progress...';
+
+            const progress = createTranslationProgressBar(container, language);
+            progress.setProgress(10, '📐 Step 1/4: Preparing image resolution (1024px vision format)...');
+
+            let stageTimer = null;
+            
+            try {
+                // Ensure LM Studio is booted on-demand if not already running
+                let statusRes = await fetch('http://localhost:3001/api/lmstudio/status').catch(() => null);
+                let status = statusRes && statusRes.ok ? await statusRes.json() : null;
+
+                if (!status || !status.running) {
+                    progress.setProgress(20, '🚀 Step 2/4: Booting LM Studio headless engine (port 1234)...');
+                    await fetch('http://localhost:3001/api/lmstudio/start', { method: 'POST' });
+                    progress.setProgress(40, '🧠 Loading Qwen Vision model weights into GPU/VRAM...');
+                    await new Promise(r => setTimeout(r, 1000));
+                } else {
+                    progress.setProgress(35, '🧠 Step 2/4: AI engine ready in memory (Qwen 3.5 Vision)...');
+                }
+
+                checkReaderAiStatus();
+
+                progress.setProgress(55, '🔍 Step 3/4: Vision AI inspecting manga panels & speech bubbles...');
+
+                // Progressive simulated steps while LLM generates tokens
+                stageTimer = setTimeout(() => {
+                    progress.setProgress(72, `✍️ Step 4/4: Translating foreign dialogue into fluent ${language}...`);
+                    stageTimer = setTimeout(() => {
+                        progress.setProgress(88, '📍 Computing precise bounding boxes & bubble coordinates...');
+                    }, 4000);
+                }, 3500);
+
+                const res = await fetch('http://localhost:3001/api/translate-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        folder: decodeURIComponent(folder), 
+                        image: decodeURIComponent(image),
+                        language: language 
+                    })
+                });
+                
+                if (stageTimer) clearTimeout(stageTimer);
+                const data = await res.json();
+                
+                if (res.ok && data.success && data.translations) {
+                    btn.innerHTML = '✓ Translated';
+                    btn.style.background = '#35d07f';
+                    btn.style.color = '#fff';
+                    btn.style.borderColor = '#35d07f';
+                    
+                    const bubbleCount = data.translations.length;
+                    const tokens = data.usage ? data.usage.total_tokens : 0;
+                    progress.complete(bubbleCount, tokens);
+
+                    if (tokens) {
+                        sessionTokens += tokens;
+                        const tracker = document.getElementById('tokenTracker');
+                        tracker.style.display = 'block';
+                        tracker.textContent = `⚡ ${sessionTokens} Tokens`;
+                    }
+                    
+                    // Render translation boxes onto the page
+                    renderTranslationBoxes(container, data.translations, image);
+                    
+                    // Show Save and Clear buttons
+                    const saveBtn = container.querySelector('.save-trans-btn');
+                    const clearBtn = container.querySelector('.clear-trans-btn');
+                    if (saveBtn) {
+                        saveBtn.style.display = 'inline-flex';
+                        saveBtn.className = 'trans-action-btn save-trans-btn unsaved';
+                        saveBtn.innerHTML = '💾 Save Page';
+                    }
+                    if (clearBtn) clearBtn.style.display = 'inline-flex';
+
+                    // Save initial translation to storage silently
+                    savePageToStorageSilently(folderName, decodeURIComponent(image), data.translations);
+
+                    // Refresh RAM usage after translation
+                    checkReaderAiStatus();
+
+                } else {
+                    progress.error(data.error || 'Server translation failed');
+                    btn.innerHTML = '✖ Error Translating';
+                    btn.style.background = '#ef4444';
+                    btn.style.color = '#fff';
+                    btn.style.borderColor = '#ef4444';
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.background = '';
+                        btn.style.color = '';
+                        btn.style.borderColor = '';
+                        btn.disabled = false;
+                    }, 3500);
+                }
+            } catch(e) {
+                if (stageTimer) clearTimeout(stageTimer);
+                console.error(e);
+                progress.error(e.message);
+                btn.innerHTML = '✖ Error Translating';
+                btn.style.background = '#ef4444';
+                btn.style.color = '#fff';
+                btn.style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                    btn.disabled = false;
+                }, 3500);
+            }
+        }
+
+        // ── Translation Storage & Box Management ──
+
+        function markPageUnsaved(container) {
+            const saveBtn = container.querySelector('.save-trans-btn');
+            const clearBtn = container.querySelector('.clear-trans-btn');
+            if (saveBtn) {
+                saveBtn.style.display = 'inline-flex';
+                saveBtn.className = 'trans-action-btn save-trans-btn unsaved';
+                saveBtn.innerHTML = '💾 Save Page';
+            }
+            if (clearBtn) clearBtn.style.display = 'inline-flex';
+        }
+
+        function savePageToStorageSilently(folder, image, boxes) {
+            try {
+                const localKey = `comic_trans_${folder}_${image}`;
+                localStorage.setItem(localKey, JSON.stringify(boxes));
+            } catch (e) {
+                console.warn('localStorage silent save error:', e);
+            }
+        }
+
+        async function savePageTranslations(btn) {
+            const container = btn.closest('.page-container');
+            const folder = decodeURIComponent(btn.getAttribute('data-folder') || folderName);
+            const image = decodeURIComponent(btn.getAttribute('data-image'));
+            
+            const boxes = Array.from(container.querySelectorAll('.translation-box')).map(box => {
+                return {
+                    text: box.innerText.trim(),
+                    x: parseFloat(box.style.left) || 0,
+                    y: parseFloat(box.style.top) || 0,
+                    width: parseFloat(box.style.width) || 20,
+                    height: parseFloat(box.style.height) || 8
+                };
+            });
+
+            // 1. Save to Local Storage
+            savePageToStorageSilently(folder, image, boxes);
+
+            // 2. Save to Server Disk (.translations.json)
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Saving...';
+            try {
+                const res = await fetch('http://localhost:3001/api/save-page-translations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ folder, image, boxes })
+                });
+                const data = await res.json();
+                btn.disabled = false;
+                btn.className = 'trans-action-btn save-trans-btn saved';
+                btn.innerHTML = '✓ Saved';
+            } catch (e) {
+                console.warn('Server disk save warning:', e);
+                btn.disabled = false;
+                btn.className = 'trans-action-btn save-trans-btn saved';
+                btn.innerHTML = '✓ Saved (Local)';
+            }
+        }
+
+        async function clearPageTranslations(btn) {
+            if (!confirm('Clear translated speech bubbles for this page?')) return;
+            const container = btn.closest('.page-container');
+            const folder = decodeURIComponent(btn.getAttribute('data-folder') || folderName);
+            const image = decodeURIComponent(btn.getAttribute('data-image'));
+
+            // Remove DOM elements
+            container.querySelectorAll('.translation-box').forEach(b => b.remove());
+
+            // Clear from Local Storage
+            const localKey = `comic_trans_${folder}_${image}`;
+            try { localStorage.removeItem(localKey); } catch {}
+
+            // Clear from Server Disk
+            try {
+                await fetch('http://localhost:3001/api/clear-page-translations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ folder, image })
+                });
+            } catch (e) {
+                console.warn('Server clear error:', e);
+            }
+
+            // Reset buttons
+            const saveBtn = container.querySelector('.save-trans-btn');
+            if (saveBtn) {
+                saveBtn.style.display = 'none';
+                saveBtn.className = 'trans-action-btn save-trans-btn';
+                saveBtn.innerHTML = '💾 Save Page';
+            }
+            btn.style.display = 'none';
+
+            // Reset translate buttons
+            container.querySelectorAll('.translate-btn').forEach(b => {
+                b.style.background = '';
+                b.style.color = '';
+                b.style.borderColor = '';
+                if (b.getAttribute('data-lang') === 'English') b.innerHTML = 'A文 English';
+                if (b.getAttribute('data-lang') === 'Tamil') b.innerHTML = 'அ Tamil';
+            });
+        }
+
+        function renderTranslationBoxes(container, boxes, imgName) {
+            container.querySelectorAll('.translation-box').forEach(b => b.remove());
+            
+            boxes.forEach(t => {
+                if (!t || !t.text) return;
+                const box = document.createElement('div');
+                box.className = 'translation-box';
+                
+                const x = Math.max(0, Math.min(95, parseFloat(t.x != null ? t.x : 10)));
+                const y = Math.max(0, Math.min(95, parseFloat(t.y != null ? t.y : 10)));
+                const w = t.width ? Math.max(5, Math.min(100 - x, parseFloat(t.width))) : 20;
+                const h = t.height ? Math.max(2.5, Math.min(100 - y, parseFloat(t.height))) : 8;
+                
+                box.style.left = `${x}%`;
+                box.style.top = `${y}%`;
+                box.style.width = `${w}%`;
+                box.style.height = `${h}%`;
+                box.textContent = t.text;
+                box.contentEditable = "true";
+                
+                let isDragging = false;
+                let startX, startY, initialLeft, initialTop;
+                
+                box.addEventListener('mousedown', (e) => {
+                    const rect = box.getBoundingClientRect();
+                    const isResize = e.clientX > rect.right - 16 && e.clientY > rect.bottom - 16;
+                    if (isResize) return;
+                    
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initialLeft = parseFloat(box.style.left || 0);
+                    initialTop = parseFloat(box.style.top || 0);
+                    
+                    const containerRect = container.getBoundingClientRect();
+                    
+                    const onMouseMove = (ev) => {
+                        if (!isDragging) return;
+                        if (Math.abs(ev.clientX - startX) > 3 || Math.abs(ev.clientY - startY) > 3) {
+                            const dx = ev.clientX - startX;
+                            const dy = ev.clientY - startY;
+                            const dxPercent = (dx / containerRect.width) * 100;
+                            const dyPercent = (dy / containerRect.height) * 100;
+                            box.style.left = `${initialLeft + dxPercent}%`;
+                            box.style.top = `${initialTop + dyPercent}%`;
+                            window.getSelection().removeAllRanges();
+                            markPageUnsaved(container);
+                        }
+                    };
+                    
+                    const onMouseUp = () => {
+                        isDragging = false;
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                    };
+                    
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+                
+                const adjustFontSize = () => {
+                    const rect = box.getBoundingClientRect();
+                    const textLen = Math.max(1, box.textContent.length);
+                    const availArea = Math.max(0, rect.width - 12) * Math.max(0, rect.height - 6);
+                    const estimatedSize = Math.sqrt(availArea / (textLen * 0.65)) * 0.9;
+                    const finalSize = Math.max(9, Math.min(estimatedSize, 16, rect.height * 0.7));
+                    box.style.fontSize = `${finalSize.toFixed(1)}px`;
+                };
+
+                const resizeObserver = new ResizeObserver(() => {
+                    adjustFontSize();
+                    markPageUnsaved(container);
+                });
+                resizeObserver.observe(box);
+                box.addEventListener('input', () => {
+                    adjustFontSize();
+                    markPageUnsaved(container);
+                });
+                setTimeout(adjustFontSize, 10);
+                
+                container.appendChild(box);
+            });
+        }
+
+        async function restoreSavedTranslations(folder, images) {
+            let serverTranslations = {};
+            try {
+                const res = await fetch(`http://localhost:3001/api/page-translations/${encodeURIComponent(folder)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    serverTranslations = data.translations || {};
+                }
+            } catch (e) {
+                console.warn('Could not read server translations:', e);
+            }
+
+            images.forEach(img => {
+                const container = document.querySelector(`.page-container[data-image="${encodeURIComponent(img)}"]`);
+                if (!container) return;
+
+                let boxes = null;
+                // 1. Try Local Storage
+                try {
+                    const localKey = `comic_trans_${folder}_${img}`;
+                    const raw = localStorage.getItem(localKey);
+                    if (raw) boxes = JSON.parse(raw);
+                } catch {}
+
+                // 2. Try Server Disk if not in Local Storage
+                if ((!boxes || !boxes.length) && serverTranslations[img] && Array.isArray(serverTranslations[img].boxes)) {
+                    boxes = serverTranslations[img].boxes;
+                    try {
+                        localStorage.setItem(`comic_trans_${folder}_${img}`, JSON.stringify(boxes));
+                    } catch {}
+                }
+
+                if (boxes && boxes.length > 0) {
+                    renderTranslationBoxes(container, boxes, img);
+                    const saveBtn = container.querySelector('.save-trans-btn');
+                    const clearBtn = container.querySelector('.clear-trans-btn');
+                    if (saveBtn) {
+                        saveBtn.style.display = 'inline-flex';
+                        saveBtn.className = 'trans-action-btn save-trans-btn saved';
+                        saveBtn.innerHTML = '✓ Saved';
+                    }
+                    if (clearBtn) clearBtn.style.display = 'inline-flex';
+                }
+            });
+        }
+
+        // ── Reader AI Bar Controller (Start / Stop / RAM display) ──
+        let currentReaderAiState = { running: false };
+
+        async function checkReaderAiStatus() {
+            try {
+                const res = await fetch('http://localhost:3001/api/lmstudio/status');
+                if (!res.ok) return;
+                const data = await res.json();
+                currentReaderAiState = data;
+                updateReaderAiBar(data);
+            } catch (e) {
+                console.warn('Reader could not check AI status:', e);
+            }
+        }
+
+        function updateReaderAiBar(data) {
+            const bar = document.getElementById('readerAiBar');
+            const dot = document.getElementById('readerAiDot');
+            const txt = document.getElementById('readerAiText');
+            const btn = document.getElementById('readerStopAiBtn');
+            const sRam = document.getElementById('readerServerRam');
+            const lmRam = document.getElementById('readerLmRam');
+
+            if (data.memory) {
+                if (sRam) sRam.textContent = data.memory.serverFormatted || '--';
+                if (lmRam) {
+                    lmRam.textContent = data.running ? data.memory.lmStudioFormatted : '0 MB (Off)';
+                    lmRam.style.color = data.running ? '#38bdf8' : '#888';
+                }
+            }
+
+            if (!bar || !btn) return;
+
+            if (data.running) {
+                if (dot) dot.className = 'ai-status-dot active';
+                if (txt) {
+                    txt.textContent = 'AI Ready';
+                    txt.style.color = '#34d399';
+                }
+                btn.disabled = false;
+                btn.className = 'reader-stop-ai-btn';
+                btn.textContent = '🛑 Stop AI';
+                btn.title = 'Stop LM Studio (Bionic) and free all RAM';
+            } else {
+                if (dot) dot.className = 'ai-status-dot stopped';
+                if (txt) {
+                    txt.textContent = 'AI Stopped';
+                    txt.style.color = '#888';
+                }
+                btn.disabled = false;
+                btn.className = 'reader-stop-ai-btn btn-start';
+                btn.textContent = '⚡ Start AI';
+                btn.title = 'Start LM Studio server and load model';
+            }
+        }
+
+        async function toggleLMStudioFromReader() {
+            const btn = document.getElementById('readerStopAiBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = currentReaderAiState.running ? '⏳ Stopping...' : '⏳ Booting...';
+            }
+            const endpoint = currentReaderAiState.running ? '/api/lmstudio/stop' : '/api/lmstudio/start';
+            try {
+                await fetch(`http://localhost:3001${endpoint}`, { method: 'POST' });
+            } catch (e) {
+                console.error('Reader AI toggle error:', e);
+            }
+            await checkReaderAiStatus();
+        }
+
+        // Initial check and periodic refresh every 6s
+        checkReaderAiStatus();
+        setInterval(checkReaderAiStatus, 6000);
+
+        load();
+    </script>
+    <script>
+        // Auto-Reload logic: Detect server restart and hard refresh, or ping server so it knows we exist
+        (function() {
+            let lastStartTime = null;
+            let serverWasDown = false;
+            setInterval(async () => {
+                try {
+                    const res = await fetch('/api/ping');
+                    const data = await res.json();
+                    if (serverWasDown || (lastStartTime && lastStartTime !== data.startTime)) {
+                        // Server restarted! Hard refresh!
+                        location.reload(true);
+                    }
+                    lastStartTime = data.startTime;
+                    serverWasDown = false;
+                } catch (e) {
+                    serverWasDown = true;
+                }
+            }, 2000);
+        })();
+    </script>
+</body>
+</html>
