@@ -28,6 +28,6 @@ build/
 dataset*/
 dataset - */
 dataset -*
-
-# Folders inside comic-website
-comic-website/*/
+# Comic Website - completely ignore all folders and files
+comic-website/
+**/comic-website/
